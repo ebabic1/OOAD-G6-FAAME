@@ -1,1 +1,4 @@
-# OOAD-G6-Placeholder
+Faris Crnčalo
+Aldin Islamagić
+Anes Ćenanović
+Eldar Babić
