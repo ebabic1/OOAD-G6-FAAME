@@ -1,4 +1,4 @@
-Faris Crnčalo
-Aldin Islamagić
-Anes Ćenanović
-Eldar Babić
+Faris Crnčalo\
+Aldin Islamagić\
+Anes Ćenanović\
+Eldar Babić\
