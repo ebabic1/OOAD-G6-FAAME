@@ -1,7 +1,9 @@
 Faris Crnčalo\
 Aldin Islamagić\
 Anes Ćenanović\
+Muhamed Mujić\
 Eldar Babić
+
 
 
 Ovaj softver je namijenjen da pruži svim ljubiteljima koncerata jednostavan način da brzo i lahko dođu do svih relevantnih
