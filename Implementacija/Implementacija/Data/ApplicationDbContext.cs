@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
+using System.Reflection.Emit;
 using System.Text;
 
 namespace Implementacija.Data
@@ -22,7 +23,7 @@ namespace Implementacija.Data
         public DbSet<Dvorana> Dvorane { get; set; }
         public DbSet<Koncert> Koncerti { get; set; }
         public DbSet<Poruka> Poruke { get; set; }
-        public DbSet<PorukaVeza> PorukaVeze { get; set; }
+    
 
         protected override void OnModelCreating(ModelBuilder builder)
         {
@@ -35,8 +36,8 @@ namespace Implementacija.Data
             builder.Entity<Dvorana>().ToTable("Dvorane");
             builder.Entity<Koncert>().ToTable("Koncerti");
             builder.Entity<Poruka>().ToTable("Poruke");
-            builder.Entity<PorukaVeza>().ToTable("PorukaVeze");
             base.OnModelCreating(builder);       
         }
+        
     }
 }

@@ -9,14 +9,6 @@ namespace Implementacija.Models
         [Key]
         public int Id { get; set; }
         
-        [ForeignKey("ObicniKorisnik")]
-        public int posiljalacId { get; set; }
-
-        [ForeignKey("ObicniKorisnik")]
-        public int primalacId { get; set; }
-    
-        [ForeignKey("Poruka")]
-        public int porukaId { get; set; }
         
         
         public PorukaVeza() { }

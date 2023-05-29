@@ -4,14 +4,16 @@ using Implementacija.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace Implementacija.Data.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20230528133550_m")]
+    partial class m
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -138,6 +140,9 @@ namespace Implementacija.Data.Migrations
                         .HasColumnType("int")
                         .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
+                    b.Property<int>("posiljalacId")
+                        .HasColumnType("int");
+
                     b.Property<int>("primalacId")
                         .HasColumnType("int");
 
@@ -145,8 +150,6 @@ namespace Implementacija.Data.Migrations
                         .HasColumnType("nvarchar(max)");
 
                     b.HasKey("Id");
-
-                    b.HasIndex("primalacId");
 
                     b.ToTable("Poruke");
                 });
@@ -469,17 +472,6 @@ namespace Implementacija.Data.Migrations
                         .IsRequired();
 
                     b.Navigation("izvodjac");
-                });
-
-            modelBuilder.Entity("Implementacija.Models.Poruka", b =>
-                {
-                    b.HasOne("Implementacija.Models.ObicniKorisnik", "primalac")
-                        .WithMany()
-                        .HasForeignKey("primalacId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("primalac");
                 });
 
             modelBuilder.Entity("Implementacija.Models.Recenzija", b =>

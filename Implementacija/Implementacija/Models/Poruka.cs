@@ -8,7 +8,9 @@ namespace Implementacija.Models
         [Key]
         public int Id { get; set; }
         public string sadrzaj { get; set; }
-
+        [ForeignKey("ObicniKorisnik")]
+        public int primalacId { get; set; }
+        public ObicniKorisnik primalac { get; set; }
         public Poruka() { }
 
     }
