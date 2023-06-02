@@ -4,14 +4,16 @@ using Implementacija.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace Implementacija.Data.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20230601232131_mpravaident4")]
+    partial class mpravaident4
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -72,22 +74,6 @@ namespace Implementacija.Data.Migrations
                     b.HasIndex("izvodjacId1");
 
                     b.ToTable("Koncerti");
-                });
-
-            modelBuilder.Entity("Implementacija.Models.Korisnik", b =>
-                {
-                    b.Property<string>("Id")
-                        .HasColumnType("nvarchar(450)");
-
-                    b.Property<string>("Email")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("UserName")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("Korisnici");
                 });
 
             modelBuilder.Entity("Implementacija.Models.Poruka", b =>
@@ -420,6 +406,13 @@ namespace Implementacija.Data.Migrations
                     b.ToTable("AspNetUserTokens");
                 });
 
+            modelBuilder.Entity("Implementacija.Models.Korisnik", b =>
+                {
+                    b.HasBaseType("Microsoft.AspNetCore.Identity.IdentityUser");
+
+                    b.ToTable("Korisnici");
+                });
+
             modelBuilder.Entity("Implementacija.Models.Iznajmljivac", b =>
                 {
                     b.HasBaseType("Implementacija.Models.Korisnik");
@@ -575,6 +568,15 @@ namespace Implementacija.Data.Migrations
                         .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("Implementacija.Models.Korisnik", b =>
+                {
+                    b.HasOne("Microsoft.AspNetCore.Identity.IdentityUser", null)
+                        .WithOne()
+                        .HasForeignKey("Implementacija.Models.Korisnik", "Id")
+                        .OnDelete(DeleteBehavior.ClientCascade)
                         .IsRequired();
                 });
 

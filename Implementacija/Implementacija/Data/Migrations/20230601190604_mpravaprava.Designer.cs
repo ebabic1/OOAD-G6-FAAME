@@ -4,14 +4,16 @@ using Implementacija.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace Implementacija.Data.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20230601190604_mpravaprava")]
+    partial class mpravaprava
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -35,15 +37,12 @@ namespace Implementacija.Data.Migrations
                     b.Property<int>("iznajmljivacId")
                         .HasColumnType("int");
 
-                    b.Property<string>("iznajmljivacId1")
-                        .HasColumnType("nvarchar(450)");
-
                     b.Property<string>("nazivDvorane")
                         .HasColumnType("nvarchar(max)");
 
                     b.HasKey("Id");
 
-                    b.HasIndex("iznajmljivacId1");
+                    b.HasIndex("iznajmljivacId");
 
                     b.ToTable("Dvorane");
                 });
@@ -58,9 +57,6 @@ namespace Implementacija.Data.Migrations
                     b.Property<int>("izvodjacId")
                         .HasColumnType("int");
 
-                    b.Property<string>("izvodjacId1")
-                        .HasColumnType("nvarchar(450)");
-
                     b.Property<string>("naziv")
                         .HasColumnType("nvarchar(max)");
 
@@ -69,15 +65,17 @@ namespace Implementacija.Data.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("izvodjacId1");
+                    b.HasIndex("izvodjacId");
 
                     b.ToTable("Koncerti");
                 });
 
             modelBuilder.Entity("Implementacija.Models.Korisnik", b =>
                 {
-                    b.Property<string>("Id")
-                        .HasColumnType("nvarchar(450)");
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int")
+                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
                     b.Property<string>("Email")
                         .HasColumnType("nvarchar(max)");
@@ -100,15 +98,12 @@ namespace Implementacija.Data.Migrations
                     b.Property<int>("primalacId")
                         .HasColumnType("int");
 
-                    b.Property<string>("primalacId1")
-                        .HasColumnType("nvarchar(450)");
-
                     b.Property<string>("sadrzaj")
                         .HasColumnType("nvarchar(max)");
 
                     b.HasKey("Id");
 
-                    b.HasIndex("primalacId1");
+                    b.HasIndex("primalacId");
 
                     b.ToTable("Poruke");
                 });
@@ -123,9 +118,6 @@ namespace Implementacija.Data.Migrations
                     b.Property<int>("izvodjacId")
                         .HasColumnType("int");
 
-                    b.Property<string>("izvodjacId1")
-                        .HasColumnType("nvarchar(450)");
-
                     b.Property<string>("komentar")
                         .HasColumnType("nvarchar(max)");
 
@@ -134,7 +126,7 @@ namespace Implementacija.Data.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("izvodjacId1");
+                    b.HasIndex("izvodjacId");
 
                     b.ToTable("Recenzije");
                 });
@@ -170,9 +162,6 @@ namespace Implementacija.Data.Migrations
                     b.Property<int>("izvodjacId")
                         .HasColumnType("int");
 
-                    b.Property<string>("izvodjacId1")
-                        .HasColumnType("nvarchar(450)");
-
                     b.Property<int>("rezervacijaId")
                         .HasColumnType("int");
 
@@ -180,7 +169,7 @@ namespace Implementacija.Data.Migrations
 
                     b.HasIndex("dvoranaId");
 
-                    b.HasIndex("izvodjacId1");
+                    b.HasIndex("izvodjacId");
 
                     b.HasIndex("rezervacijaId");
 
@@ -200,9 +189,6 @@ namespace Implementacija.Data.Migrations
                     b.Property<int>("obicniKorisnikId")
                         .HasColumnType("int");
 
-                    b.Property<string>("obicniKorisnikId1")
-                        .HasColumnType("nvarchar(450)");
-
                     b.Property<int>("rezervacijaId")
                         .HasColumnType("int");
 
@@ -213,7 +199,7 @@ namespace Implementacija.Data.Migrations
 
                     b.HasIndex("koncertId");
 
-                    b.HasIndex("obicniKorisnikId1");
+                    b.HasIndex("obicniKorisnikId");
 
                     b.HasIndex("rezervacijaId");
 
@@ -445,7 +431,9 @@ namespace Implementacija.Data.Migrations
                 {
                     b.HasOne("Implementacija.Models.Iznajmljivac", "iznajmljivac")
                         .WithMany()
-                        .HasForeignKey("iznajmljivacId1");
+                        .HasForeignKey("iznajmljivacId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
                     b.Navigation("iznajmljivac");
                 });
@@ -454,7 +442,9 @@ namespace Implementacija.Data.Migrations
                 {
                     b.HasOne("Implementacija.Models.Izvodjac", "izvodjac")
                         .WithMany()
-                        .HasForeignKey("izvodjacId1");
+                        .HasForeignKey("izvodjacId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
                     b.Navigation("izvodjac");
                 });
@@ -463,7 +453,9 @@ namespace Implementacija.Data.Migrations
                 {
                     b.HasOne("Implementacija.Models.ObicniKorisnik", "primalac")
                         .WithMany()
-                        .HasForeignKey("primalacId1");
+                        .HasForeignKey("primalacId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
                     b.Navigation("primalac");
                 });
@@ -472,7 +464,9 @@ namespace Implementacija.Data.Migrations
                 {
                     b.HasOne("Implementacija.Models.Izvodjac", "izvodjac")
                         .WithMany()
-                        .HasForeignKey("izvodjacId1");
+                        .HasForeignKey("izvodjacId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
                     b.Navigation("izvodjac");
                 });
@@ -487,7 +481,9 @@ namespace Implementacija.Data.Migrations
 
                     b.HasOne("Implementacija.Models.Izvodjac", "izvodjac")
                         .WithMany()
-                        .HasForeignKey("izvodjacId1");
+                        .HasForeignKey("izvodjacId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
                     b.HasOne("Implementacija.Models.Rezervacija", "rezervacija")
                         .WithMany()
@@ -512,7 +508,9 @@ namespace Implementacija.Data.Migrations
 
                     b.HasOne("Implementacija.Models.ObicniKorisnik", "obicniKorisnik")
                         .WithMany()
-                        .HasForeignKey("obicniKorisnikId1");
+                        .HasForeignKey("obicniKorisnikId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
                     b.HasOne("Implementacija.Models.Rezervacija", "rezervacija")
                         .WithMany()

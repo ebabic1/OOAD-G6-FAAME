@@ -16,6 +16,7 @@ namespace Implementacija.Data
         }
         public DbSet<ObicniKorisnik> ObicniKorisnici { get; set; }
         public DbSet<Iznajmljivac> Iznajmljivaci { get; set; }
+        public DbSet<Korisnik> Korisnici { get; set; }
         public DbSet<Izvodjac> Izvodjaci { get; set; }
         public DbSet<Recenzija> Recenzije { get; set; }
         public DbSet<RezervacijaDvorane> RezervacijaDvorana { get; set; }
@@ -23,12 +24,13 @@ namespace Implementacija.Data
         public DbSet<Dvorana> Dvorane { get; set; }
         public DbSet<Koncert> Koncerti { get; set; }
         public DbSet<Poruka> Poruke { get; set; }
-    
+
 
         protected override void OnModelCreating(ModelBuilder builder)
         {
             builder.Entity<ObicniKorisnik>().ToTable("ObicniKorisnici");
             builder.Entity<Iznajmljivac>().ToTable("Iznajmljivaci");
+            builder.Entity<Korisnik>().ToTable("Korisnici");
             builder.Entity<Izvodjac>().ToTable("Izvodjaci");
             builder.Entity<Recenzija>().ToTable("Recenzije");
             builder.Entity<RezervacijaDvorane>().ToTable("RezervacijaDvorana");
