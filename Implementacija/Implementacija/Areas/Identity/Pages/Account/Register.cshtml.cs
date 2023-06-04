@@ -90,7 +90,7 @@ namespace Implementacija.Areas.Identity.Pages.Account
             {
                 var user = new IdentityUser { UserName = Input.Email, Email = Input.Email };
                 var result = await _userManager.CreateAsync(user, Input.Password);
-
+                
                 if (result.Succeeded)
                 {
                     Korisnik ok;
@@ -104,6 +104,7 @@ namespace Implementacija.Areas.Identity.Pages.Account
                             UserName = user.UserName,
                             Email = user.Email
                         };
+                        await _userManager.AddToRoleAsync(user, "ObicniKorisnik");
                         _context.Korisnici.Add(ok);
                     }
                     else if (Input.Role == "Izvodjac")
@@ -114,6 +115,7 @@ namespace Implementacija.Areas.Identity.Pages.Account
                             UserName = user.UserName,
                             Email = user.Email
                         };
+                        await _userManager.AddToRoleAsync(user, "Izvodjac");
                         _context.Korisnici.Add(ok);
                     }
                     else
@@ -124,6 +126,7 @@ namespace Implementacija.Areas.Identity.Pages.Account
                             UserName = user.UserName,
                             Email = user.Email
                         };
+                        await _userManager.AddToRoleAsync(user, "Iznajmljivac");
                         _context.Korisnici.Add(ok);
                     }
                     _context.SaveChanges();
