@@ -9,7 +9,7 @@ namespace Implementacija.Models
         public int Id { get; set; }
         public string naziv { get; set; }
         [ForeignKey("Izvodjac")]
-        public int izvodjacId { get; set; }
+        public string izvodjacId { get; set; }
         public Izvodjac izvodjac { get; set; }
 
         [EnumDataType(typeof(Zanr))]

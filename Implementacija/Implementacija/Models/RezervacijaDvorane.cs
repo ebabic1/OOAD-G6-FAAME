@@ -13,7 +13,7 @@ namespace Implementacija.Models
         public Rezervacija rezervacija { get; set; }
 
         [ForeignKey("Izvodjac")]
-        public int izvodjacId { get; set; }
+        public string izvodjacId { get; set; }
         public Izvodjac izvodjac { get; set; }
 
         [ForeignKey("Dvorana")]

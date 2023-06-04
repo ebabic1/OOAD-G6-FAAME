@@ -1,5 +1,6 @@
 using Implementacija.Data;
 using Implementacija.Models;
+using Implementacija.Services;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.HttpsPolicy;
@@ -12,6 +13,7 @@ using Microsoft.Extensions.Hosting;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net;
 using System.Threading.Tasks;
 
 namespace Implementacija
@@ -32,7 +34,10 @@ namespace Implementacija
            options.SignIn.RequireConfirmedAccount = true)
             .AddRoles<IdentityRole>()
             .AddEntityFrameworkStores<ApplicationDbContext>();
-            
+            services.AddMvc();
+            services.AddTransient<UserManager<IdentityUser>>();
+            services.AddTransient<ApplicationDbContext>();
+            services.AddTransient<IKoncertManager, KoncertManager>();
             services.AddControllersWithViews();
         }
         public IConfiguration Configuration { get; }

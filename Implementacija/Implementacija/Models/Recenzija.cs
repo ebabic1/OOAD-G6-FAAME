@@ -10,7 +10,7 @@ namespace Implementacija.Models
         public double rating { get; set; }
         public string komentar { get; set; }
         [ForeignKey("Izvodjac")]
-        public int izvodjacId { get; set; }
+        public string izvodjacId { get; set; }
         public Izvodjac izvodjac { get; set; }
         public Recenzija() { }
     }

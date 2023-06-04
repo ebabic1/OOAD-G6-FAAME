@@ -12,7 +12,7 @@ namespace Implementacija.Models
         public int brojSjedista { get; set; }
 
         [ForeignKey("Iznajmljivac")]
-        public int iznajmljivacId { get; set; }
+        public string iznajmljivacId { get; set; }
         public Iznajmljivac iznajmljivac { get; set; }
         public Dvorana() { }
     }

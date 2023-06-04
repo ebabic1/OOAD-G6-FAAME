@@ -11,7 +11,7 @@ namespace Implementacija.Models
         public int rezervacijaId { get; set; }
         public Rezervacija rezervacija { get; set; }
         [ForeignKey("ObicniKorisnik")]
-        public int obicniKorisnikId { get; set; }
+        public string obicniKorisnikId { get; set; }
         public ObicniKorisnik obicniKorisnik { get; set; }
 
         [EnumDataType(typeof(TipMjesta))]
