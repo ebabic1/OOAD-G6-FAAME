@@ -54,15 +54,6 @@
 
 <script>
     function calculateTicketPrice() {
-        var ticketType = $('input[name="tipMjesta"]:checked').val();
-
-        // Call the calculatePrice method in the rezervacijaManager
-        rezervacijaManager.calculatePrice(ticketType,Model.koncertId)
-            .then(function (ticketPrice) {
-                $('#ticketPrice').val(ticketPrice.toFixed(2)); // Set the ticket price in the text box
-            })
-            .catch(function (error) {
-                console.log(error); // Handle the error case
-            });
+        
     }
 </script>
