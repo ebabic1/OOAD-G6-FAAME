@@ -8,5 +8,6 @@ namespace Implementacija.Services
     {
         public  Task<IEnumerable<Koncert>> GetAll();
         public IEnumerable<Koncert> GetRecommended();
+        public int GetRemainingSeats(Koncert koncert);
     }
 }

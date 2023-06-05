@@ -7,6 +7,7 @@
 }
 @using Implementacija.Services
 @inject IRezervacijaManager rezervacijaManager
+@inject IKoncertManager koncertManager
 <h1>Reserve</h1>
 
 <h4>RezervacijaKarte</h4>
@@ -27,9 +28,15 @@
         <form asp-action="CreateReserve">
             <div class="form-group">
                 <label>Ticket Type:</label><br>
-                @Html.RadioButtonFor(x => x.tipMjesta, (int)TipMjesta.PARTER, new { onchange = "calculateTicketPrice()" }) Parter
-                @Html.RadioButtonFor(x => x.tipMjesta, (int)TipMjesta.TRIBINA, new { onchange = "calculateTicketPrice()" }) TRIBINA
-                @Html.RadioButtonFor(x => x.tipMjesta, (int)TipMjesta.VIP, new { onchange = "calculateTicketPrice()" }) VIP
+                @{
+                    var types = Enum.GetValues(typeof(TipMjesta));
+                    <select class="form-control" id="typeSeat" onchange="calculateTicketPrice()">
+                        @foreach (var type in types)
+                        {
+                            <option value="@type">@type</option>
+                        }
+                    </select>
+                }
                 @Html.HiddenFor(x => x.koncertId)
             </div>
             <div class="form-group">
@@ -43,8 +50,25 @@
             </div>
         </form>
     </div>
+    <div class="col-md-4">
+        <div class="card">
+            <div class="card-body">
+                <h5 class="card-title">Remaining Tickets</h5>
+                <p class="card-text">@koncertManager.GetRemainingSeats(Model.koncert)</p>
+            </div>
+        </div>
+    </div>
 </div>
 
+<script>
+    async function calculateTicketPrice() {
+        let dropdownMenuValue = document.getElementById('typeSeat').value;
+        const concertId = document.getElementById('koncertId').value;
+        const ticketPrice = await rezervacijaManager.calculatePrice(dropdownMenuValue, concertId);
+        console.log(ticketPrice);
+        document.getElementById('ticketPrice').value = ticketPrice.toFixed(2);
+    }
+</script>
 
 @section Scripts {
     @{

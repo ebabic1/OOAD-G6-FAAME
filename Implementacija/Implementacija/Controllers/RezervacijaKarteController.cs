@@ -11,6 +11,7 @@ using Microsoft.AspNetCore.Authorization;
 using System.Data;
 using Microsoft.AspNetCore.Identity;
 using System.Security.Claims;
+using Implementacija.Services;
 
 namespace Implementacija.Controllers
 {
@@ -91,11 +92,14 @@ namespace Implementacija.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> CreateReserve([Bind("Id,rezervacijaId,obicniKorisnikId,tipMjesta,koncertId")] RezervacijaKarte rezervacijaKarte)
         {
+            var koncertManager = new KoncertManager(_context);
+            int remainingSeats = koncertManager.GetRemainingSeats(rezervacijaKarte.koncert);
 
-            if (ModelState.IsValid)
+            if (ModelState.IsValid && remainingSeats >= 0)
             {
+                RezervacijaManager rezervacijaManager = new RezervacijaManager();
                 var rezervacija = new Rezervacija();
-                rezervacija.cijena = 1;
+                rezervacija.cijena = await rezervacijaManager.calculatePrice(rezervacijaKarte.tipMjesta,rezervacijaKarte.koncertId);
                 rezervacija.potvrda = false;
                 _context.Add(rezervacija); await _context.SaveChangesAsync();
                 rezervacijaKarte.rezervacijaId = rezervacija.Id;
