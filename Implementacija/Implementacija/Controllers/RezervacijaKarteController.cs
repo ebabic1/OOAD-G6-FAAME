@@ -9,9 +9,12 @@ using Implementacija.Data;
 using Implementacija.Models;
 using Microsoft.AspNetCore.Authorization;
 using System.Data;
+using Microsoft.AspNetCore.Identity;
+using System.Security.Claims;
 
 namespace Implementacija.Controllers
 {
+    [Authorize]
     public class RezervacijaKarteController : Controller
     {
         private readonly ApplicationDbContext _context;
@@ -54,8 +57,11 @@ namespace Implementacija.Controllers
                 .Include(r => r.izvodjac)
                 .FirstOrDefaultAsync(m => m.Id == id);
             if (koncert == null) return NotFound();
-            return View(koncert);
+            var rezervacija = new RezervacijaKarte();
+            rezervacija.koncert = koncert;
+            return View(rezervacija);
         }
+       
         // GET: RezervacijaKarte/Create
         public IActionResult Create()
         {
@@ -73,6 +79,28 @@ namespace Implementacija.Controllers
         {
             if (ModelState.IsValid)
             {
+                _context.Add(rezervacijaKarte);
+                await _context.SaveChangesAsync();
+                return RedirectToAction(nameof(Index));
+            }
+            ViewData["koncertId"] = new SelectList(_context.Koncerti, "Id", "Id", rezervacijaKarte.koncertId);
+            ViewData["rezervacijaId"] = new SelectList(_context.Set<Rezervacija>(), "Id", "Id", rezervacijaKarte.rezervacijaId);
+            return View(rezervacijaKarte);
+        }
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> CreateReserve([Bind("Id,rezervacijaId,obicniKorisnikId,tipMjesta,koncertId")] RezervacijaKarte rezervacijaKarte)
+        {
+
+            if (ModelState.IsValid)
+            {
+                var rezervacija = new Rezervacija();
+                rezervacija.cijena = 1;
+                rezervacija.potvrda = false;
+                _context.Add(rezervacija); await _context.SaveChangesAsync();
+                rezervacijaKarte.rezervacijaId = rezervacija.Id;
+                var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+                rezervacijaKarte.obicniKorisnikId = userId;
                 _context.Add(rezervacijaKarte);
                 await _context.SaveChangesAsync();
                 return RedirectToAction(nameof(Index));

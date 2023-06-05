@@ -38,6 +38,7 @@ namespace Implementacija
             services.AddTransient<UserManager<IdentityUser>>();
             services.AddTransient<ApplicationDbContext>();
             services.AddTransient<IKoncertManager, KoncertManager>();
+            services.AddTransient<IRezervacijaManager, RezervacijaManager>();
             services.AddControllersWithViews();
         }
         public IConfiguration Configuration { get; }

@@ -1,30 +1,41 @@
-﻿@model Implementacija.Models.Koncert
-
+﻿@model Implementacija.Models.RezervacijaKarte
+@{
+    Model.koncertId = Model.koncert.Id;
+}
 @{
     ViewData["Title"] = "Reserve";
 }
-
+@using Implementacija.Services
+@inject IRezervacijaManager rezervacijaManager
 <h1>Reserve</h1>
 
 <h4>RezervacijaKarte</h4>
 <hr />
-
 <div class="row">
     <dl class="row">
         <dt class="col-sm-2">
-            @Html.DisplayNameFor(model => model.naziv)
+            @Html.DisplayNameFor(model => model.koncert.naziv)
         </dt>
         <dd class="col-sm-10">
-            @Html.DisplayFor(model => model.naziv)
+            @Html.DisplayFor(model => model.koncert.naziv)
         </dd>
     </dl>
 </div>
 
-
-
 <div class="row mt-3">
     <div class="col-md-4">
-        <form asp-action="Reserve">
+        <form asp-action="CreateReserve">
+            <div class="form-group">
+                <label>Ticket Type:</label><br>
+                @Html.RadioButtonFor(x => x.tipMjesta, (int)TipMjesta.PARTER, new { onchange = "calculateTicketPrice()" }) Parter
+                @Html.RadioButtonFor(x => x.tipMjesta, (int)TipMjesta.TRIBINA, new { onchange = "calculateTicketPrice()" }) TRIBINA
+                @Html.RadioButtonFor(x => x.tipMjesta, (int)TipMjesta.VIP, new { onchange = "calculateTicketPrice()" }) VIP
+                @Html.HiddenFor(x => x.koncertId)
+            </div>
+            <div class="form-group">
+                <label for="ticketPrice">Ticket Price:</label>
+                <input class="form-control" id="ticketPrice" readonly>
+            </div>
             <div class="row mt-3">
                 <div class="col-md-12 text-center">
                     <button type="submit" class="btn btn-primary">Confirm</button>
@@ -34,8 +45,24 @@
     </div>
 </div>
 
+
 @section Scripts {
     @{
         await Html.RenderPartialAsync("_ValidationScriptsPartial");
     }
 }
+
+<script>
+    function calculateTicketPrice() {
+        var ticketType = $('input[name="tipMjesta"]:checked').val();
+
+        // Call the calculatePrice method in the rezervacijaManager
+        rezervacijaManager.calculatePrice(ticketType,Model.koncertId)
+            .then(function (ticketPrice) {
+                $('#ticketPrice').val(ticketPrice.toFixed(2)); // Set the ticket price in the text box
+            })
+            .catch(function (error) {
+                console.log(error); // Handle the error case
+            });
+    }
+</script>
