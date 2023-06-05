@@ -94,8 +94,8 @@ namespace Implementacija.Controllers
         {
             var koncertManager = new KoncertManager(_context);
             int remainingSeats = koncertManager.GetRemainingSeats(rezervacijaKarte.koncert);
-
-            if (ModelState.IsValid && remainingSeats >= 0)
+            //treba dodat neku indikaciju da nema vise mjesta 
+            if (ModelState.IsValid && remainingSeats > 0)
             {
                 RezervacijaManager rezervacijaManager = new RezervacijaManager();
                 var rezervacija = new Rezervacija();
