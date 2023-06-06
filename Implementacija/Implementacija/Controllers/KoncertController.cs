@@ -48,6 +48,7 @@ namespace Implementacija.Controllers
         // GET: Koncert/Create
         public IActionResult Create()
         {
+            ViewData["izvodjacId"] = new SelectList(_context.Izvodjaci, "Id", "Id");
             return View();
         }
 
@@ -64,6 +65,7 @@ namespace Implementacija.Controllers
                 await _context.SaveChangesAsync();
                 return RedirectToAction(nameof(Index));
             }
+            ViewData["izvodjacId"] = new SelectList(_context.Izvodjaci, "Id", "Id", koncert.izvodjacId);
             return View(koncert);
         }
 
