@@ -21,10 +21,13 @@ namespace Implementacija.Services
             _db=db;
             _contextAccessor=contextAccessor;
         }
+        public string GetUserId()
+        {
+            return _contextAccessor.HttpContext.User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+        }
         public IEnumerable<Poruka> GetAll()
         {
-            var userId = _contextAccessor.HttpContext.User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-            return _db.Poruke.Where(poruka => poruka.primalacId == userId).OrderByDescending(poruka => poruka.Id);
+            return _db.Poruke.Where(poruka => poruka.primalacId == GetUserId()).OrderByDescending(poruka => poruka.Id);
         }
     }
 }

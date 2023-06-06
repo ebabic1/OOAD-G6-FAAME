@@ -8,6 +8,7 @@ using Microsoft.EntityFrameworkCore;
 using Implementacija.Data;
 using Implementacija.Models;
 using Microsoft.AspNetCore.Authorization;
+using System.Security.Claims;
 
 namespace Implementacija.Controllers
 {
@@ -63,6 +64,9 @@ namespace Implementacija.Controllers
         {
             if (ModelState.IsValid)
             {
+                string posiljalac = "Poruka od " + User.Identity.Name + ": ";
+                posiljalac = posiljalac + poruka.sadrzaj;
+                poruka.sadrzaj = posiljalac;
                 _context.Add(poruka);
                 await _context.SaveChangesAsync();
                 return RedirectToAction(nameof(Index));
