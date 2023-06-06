@@ -41,6 +41,7 @@ namespace Implementacija
             services.AddTransient<IRezervacijaManager, RezervacijaManager>();
             services.AddTransient<ITicketManager, TicketManager>();
             services.AddTransient<IPorukaManager, PorukaManager>();
+            services.AddTransient<IDvoranaManager, DvoranaManager>();
             services.AddControllersWithViews();
             services.AddHttpContextAccessor();
         }

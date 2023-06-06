@@ -1,4 +1,4 @@
-﻿@model IEnumerable<Implementacija.Models.Koncert>
+﻿@model IEnumerable<Implementacija.Models.Dvorana>
 
 @{
     ViewData["Title"] = "Index";
@@ -6,7 +6,7 @@
 
 <h1>Index</h1>
 
-@if (User.IsInRole("Izvodjac"))
+@if (User.IsInRole("Iznajmljivac"))
 {
     <p>
         <a asp-action="Create">Create New</a>
@@ -16,13 +16,16 @@
     <thead>
         <tr>
             <th>
-                @Html.DisplayNameFor(model => model.naziv)
+                @Html.DisplayNameFor(model => model.nazivDvorane)
             </th>
             <th>
-                @Html.DisplayNameFor(model => model.izvodjacId)
+                @Html.DisplayNameFor(model => model.adresaDvorane)
             </th>
             <th>
-                @Html.DisplayNameFor(model => model.zanr)
+                @Html.DisplayNameFor(model => model.brojSjedista)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.iznajmljivac)
             </th>
             <th></th>
         </tr>
@@ -31,13 +34,16 @@
 @foreach (var item in Model) {
         <tr>
             <td>
-                @Html.DisplayFor(modelItem => item.naziv)
+                @Html.DisplayFor(modelItem => item.nazivDvorane)
             </td>
             <td>
-                @Html.DisplayFor(modelItem => item.izvodjacId)
+                @Html.DisplayFor(modelItem => item.adresaDvorane)
             </td>
             <td>
-                @Html.DisplayFor(modelItem => item.zanr)
+                @Html.DisplayFor(modelItem => item.brojSjedista)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.iznajmljivac.Id)
             </td>
             <td>
                 <a asp-action="Edit" asp-route-id="@item.Id">Edit</a> |

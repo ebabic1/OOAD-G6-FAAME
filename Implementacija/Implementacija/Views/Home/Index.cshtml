@@ -4,13 +4,14 @@
 @model IEnumerable<Implementacija.Models.Koncert>
 @inject IKoncertManager koncertManager
 @inject ITicketManager TicketManager
+@inject IDvoranaManager dvoranaManager
 @inject UserManager<IdentityUser> UserManager
 @{
     ViewData["Title"] = "Home Page";
     var concerts = await koncertManager.GetAll();
     var recommended = koncertManager.GetRecommended();
     var owned = TicketManager.GetOwned(UserManager.GetUserId(User));
-    
+    var concertHalls = await dvoranaManager.GetAll();
 
 }
 <!DOCTYPE html>
@@ -127,39 +128,79 @@
         </tbody>
     </table>
 <br />
-<h2>Vaše Karte</h2>
-    @if (owned != null && owned.Any())
+
+    @if (User.IsInRole("Izvodjac") || User.IsInRole("Iznajmljivac"))
     {
+        <br />
+        <h2>Dvorane</h2>
         <table>
             <thead>
                 <tr>
                     <th>Naziv</th>
-                    <th>TipMjesta</th>
-                    <th>Izvođač</th>
-                    <th>Žanr</th>
+                    <th>Iznajmljivac</th>
+                    <th>Broj Sjedista</th>
+                    <th>Adresa</th>
                     <th></th>
                 </tr>
             </thead>
             <tbody>
 
-                @foreach (var item in owned)
+
+                @foreach (var item in concertHalls)
                 {
                     <tr>
-                        <td>@Html.DisplayFor(modelItem => item.koncert.naziv)</td>
-                        <td>@Html.DisplayFor(modelItem => item.tipMjesta)</td>
-                        <td>@Html.DisplayFor(modelItem => item.koncert.izvodjac.UserName)</td>
-                        <td>@Html.DisplayFor(modelItem => item.koncert.zanr)</td>
+                        <td>@Html.DisplayFor(modelItem => item.iznajmljivac)</td>
+                        <td>@Html.DisplayFor(modelItem => UserManager.FindByIdAsync(item.iznajmljivacId).Result.UserName)</td>
+                        <td>@Html.DisplayFor(modelItem => item.brojSjedista)</td>
+                        <td>@Html.DisplayFor(modelItem => item.adresaDvorane)</td>
                         <td>
-                            
+                            <a class="details-link" asp-controller="Dvorana" asp-action="Details" asp-route-id="@item.Id">Details</a>
                         </td>
                     </tr>
                 }
-            </tbody>
-        </table>
+
+
+        </tbody>
+    </table>
     }
-    else 
+
+@if (User.IsInRole("ObicniKorisnik"))
     {
-        <b>Nemate trenutno kupljenih karata.</b>
+        <h2>Vaše Karte</h2>
+        @if (owned != null && owned.Any())
+        {
+            <table>
+                <thead>
+                    <tr>
+                        <th>Naziv</th>
+                        <th>TipMjesta</th>
+                        <th>Izvođač</th>
+                        <th>Žanr</th>
+                        <th></th>
+                    </tr>
+                </thead>
+                <tbody>
+
+                    @foreach (var item in owned)
+                    {
+                        <tr>
+                            <td>@Html.DisplayFor(modelItem => item.koncert.naziv)</td>
+                            <td>@Html.DisplayFor(modelItem => item.tipMjesta)</td>
+                            <td>@Html.DisplayFor(modelItem => item.koncert.izvodjac.UserName)</td>
+                            <td>@Html.DisplayFor(modelItem => item.koncert.zanr)</td>
+                            <td>
+
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        }
+        else
+        {
+            <b>Nemate trenutno kupljenih karata.</b>
+        }
+
     }
 
     

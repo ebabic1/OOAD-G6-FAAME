@@ -7,93 +7,88 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using Implementacija.Data;
 using Implementacija.Models;
-using Microsoft.AspNetCore.Authorization;
 
 namespace Implementacija.Controllers
 {
- 
-    public class KoncertController : Controller
+    public class IzvodjacController : Controller
     {
         private readonly ApplicationDbContext _context;
 
-        public KoncertController(ApplicationDbContext context)
+        public IzvodjacController(ApplicationDbContext context)
         {
             _context = context;
         }
 
-        // GET: Koncert
+        // GET: Izvodjac
         public async Task<IActionResult> Index()
         {
-            return View(await _context.Koncerti.ToListAsync());
+            return View(await _context.Izvodjaci.ToListAsync());
         }
 
-        // GET: Koncert/Details/5
-        public async Task<IActionResult> Details(int? id)
+        // GET: Izvodjac/Details/5
+        public async Task<IActionResult> Details(string id)
         {
             if (id == null)
             {
                 return NotFound();
             }
 
-            var koncert = await _context.Koncerti
+            var izvodjac = await _context.Izvodjaci
                 .FirstOrDefaultAsync(m => m.Id == id);
-            if (koncert == null)
+            if (izvodjac == null)
             {
                 return NotFound();
             }
 
-            return View(koncert);
+            return View(izvodjac);
         }
 
-        [Authorize(Roles = "Izvodjac")]
-        // GET: Koncert/Create
+        // GET: Izvodjac/Create
         public IActionResult Create()
         {
-            ViewData["izvodjacId"] = new SelectList(_context.Izvodjaci, "Id", "Id");
             return View();
         }
 
-        // POST: Koncert/Create
+        // POST: Izvodjac/Create
         // To protect from overposting attacks, enable the specific properties you want to bind to.
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("Id,naziv,izvodjacId,zanr")] Koncert koncert)
+        public async Task<IActionResult> Create([Bind("Id,UserName,Email")] Izvodjac izvodjac)
         {
             if (ModelState.IsValid)
             {
-                _context.Add(koncert);
+                _context.Add(izvodjac);
                 await _context.SaveChangesAsync();
                 return RedirectToAction(nameof(Index));
             }
-            ViewData["izvodjacId"] = new SelectList(_context.Izvodjaci, "Id", "Id", koncert.izvodjacId);
-            return View(koncert);
+            return View(izvodjac);
         }
 
-        // GET: Koncert/Edit/5
-        public async Task<IActionResult> Edit(int? id)
+        // GET: Izvodjac/Edit/5
+        public async Task<IActionResult> Edit(string id)
         {
             if (id == null)
             {
                 return NotFound();
             }
 
-            var koncert = await _context.Koncerti.FindAsync(id);
-            if (koncert == null)
+            var izvodjac = await _context.Izvodjaci.FindAsync(id);
+            if (izvodjac == null)
             {
                 return NotFound();
             }
-            return View(koncert);
+            return View(izvodjac);
         }
 
-        // POST: Koncert/Edit/5
+        // POST: Izvodjac/Edit/5
         // To protect from overposting attacks, enable the specific properties you want to bind to.
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("Id,naziv,izvodjacId,zanr")] Koncert koncert)
+        public async Task<IActionResult> Edit(string id, [Bind("Id,UserName,Email")] Izvodjac izvodjac)
         {
-            if (id != koncert.Id)
+            if (id != izvodjac.Id)
             {
                 return NotFound();
             }
@@ -102,12 +97,12 @@ namespace Implementacija.Controllers
             {
                 try
                 {
-                    _context.Update(koncert);
+                    _context.Update(izvodjac);
                     await _context.SaveChangesAsync();
                 }
                 catch (DbUpdateConcurrencyException)
                 {
-                    if (!KoncertExists(koncert.Id))
+                    if (!IzvodjacExists(izvodjac.Id))
                     {
                         return NotFound();
                     }
@@ -118,41 +113,41 @@ namespace Implementacija.Controllers
                 }
                 return RedirectToAction(nameof(Index));
             }
-            return View(koncert);
+            return View(izvodjac);
         }
 
-        // GET: Koncert/Delete/5
-        public async Task<IActionResult> Delete(int? id)
+        // GET: Izvodjac/Delete/5
+        public async Task<IActionResult> Delete(string id)
         {
             if (id == null)
             {
                 return NotFound();
             }
 
-            var koncert = await _context.Koncerti
+            var izvodjac = await _context.Izvodjaci
                 .FirstOrDefaultAsync(m => m.Id == id);
-            if (koncert == null)
+            if (izvodjac == null)
             {
                 return NotFound();
             }
 
-            return View(koncert);
+            return View(izvodjac);
         }
 
-        // POST: Koncert/Delete/5
+        // POST: Izvodjac/Delete/5
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> DeleteConfirmed(int id)
+        public async Task<IActionResult> DeleteConfirmed(string id)
         {
-            var koncert = await _context.Koncerti.FindAsync(id);
-            _context.Koncerti.Remove(koncert);
+            var izvodjac = await _context.Izvodjaci.FindAsync(id);
+            _context.Izvodjaci.Remove(izvodjac);
             await _context.SaveChangesAsync();
             return RedirectToAction(nameof(Index));
         }
 
-        private bool KoncertExists(int id)
+        private bool IzvodjacExists(string id)
         {
-            return _context.Koncerti.Any(e => e.Id == id);
+            return _context.Izvodjaci.Any(e => e.Id == id);
         }
     }
 }

@@ -11,23 +11,25 @@ using Microsoft.AspNetCore.Authorization;
 
 namespace Implementacija.Controllers
 {
- 
-    public class KoncertController : Controller
+    public class DvoranaController : Controller
     {
         private readonly ApplicationDbContext _context;
 
-        public KoncertController(ApplicationDbContext context)
+        public DvoranaController(ApplicationDbContext context)
         {
             _context = context;
         }
 
-        // GET: Koncert
+        [Authorize(Roles = "Iznajmljivac, Izvodjac")]
+        // GET: Dvorana
         public async Task<IActionResult> Index()
         {
-            return View(await _context.Koncerti.ToListAsync());
+            var applicationDbContext = _context.Dvorane.Include(d => d.iznajmljivac);
+            return View(await applicationDbContext.ToListAsync());
         }
 
-        // GET: Koncert/Details/5
+        [Authorize(Roles = "Iznajmljivac, Izvodjac")]
+        // GET: Dvorana/Details/5
         public async Task<IActionResult> Details(int? id)
         {
             if (id == null)
@@ -35,42 +37,44 @@ namespace Implementacija.Controllers
                 return NotFound();
             }
 
-            var koncert = await _context.Koncerti
+            var dvorana = await _context.Dvorane
+                .Include(d => d.iznajmljivac)
                 .FirstOrDefaultAsync(m => m.Id == id);
-            if (koncert == null)
+            if (dvorana == null)
             {
                 return NotFound();
             }
 
-            return View(koncert);
+            return View(dvorana);
         }
 
-        [Authorize(Roles = "Izvodjac")]
-        // GET: Koncert/Create
+        [Authorize(Roles = "Iznajmljivac")]
+        // GET: Dvorana/Create
         public IActionResult Create()
         {
-            ViewData["izvodjacId"] = new SelectList(_context.Izvodjaci, "Id", "Id");
+            ViewData["iznajmljivacId"] = new SelectList(_context.Iznajmljivaci, "Id", "Id");
             return View();
         }
 
-        // POST: Koncert/Create
+        // POST: Dvorana/Create
         // To protect from overposting attacks, enable the specific properties you want to bind to.
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("Id,naziv,izvodjacId,zanr")] Koncert koncert)
+        public async Task<IActionResult> Create([Bind("Id,nazivDvorane,adresaDvorane,brojSjedista,iznajmljivacId")] Dvorana dvorana)
         {
             if (ModelState.IsValid)
             {
-                _context.Add(koncert);
+                _context.Add(dvorana);
                 await _context.SaveChangesAsync();
                 return RedirectToAction(nameof(Index));
             }
-            ViewData["izvodjacId"] = new SelectList(_context.Izvodjaci, "Id", "Id", koncert.izvodjacId);
-            return View(koncert);
+            ViewData["iznajmljivacId"] = new SelectList(_context.Iznajmljivaci, "Id", "Id", dvorana.iznajmljivacId);
+            return View(dvorana);
         }
 
-        // GET: Koncert/Edit/5
+        [Authorize(Roles = "Iznajmljivac")]
+        // GET: Dvorana/Edit/5
         public async Task<IActionResult> Edit(int? id)
         {
             if (id == null)
@@ -78,22 +82,23 @@ namespace Implementacija.Controllers
                 return NotFound();
             }
 
-            var koncert = await _context.Koncerti.FindAsync(id);
-            if (koncert == null)
+            var dvorana = await _context.Dvorane.FindAsync(id);
+            if (dvorana == null)
             {
                 return NotFound();
             }
-            return View(koncert);
+            ViewData["iznajmljivacId"] = new SelectList(_context.Iznajmljivaci, "Id", "Id", dvorana.iznajmljivacId);
+            return View(dvorana);
         }
 
-        // POST: Koncert/Edit/5
+        // POST: Dvorana/Edit/5
         // To protect from overposting attacks, enable the specific properties you want to bind to.
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("Id,naziv,izvodjacId,zanr")] Koncert koncert)
+        public async Task<IActionResult> Edit(int id, [Bind("Id,nazivDvorane,adresaDvorane,brojSjedista,iznajmljivacId")] Dvorana dvorana)
         {
-            if (id != koncert.Id)
+            if (id != dvorana.Id)
             {
                 return NotFound();
             }
@@ -102,12 +107,12 @@ namespace Implementacija.Controllers
             {
                 try
                 {
-                    _context.Update(koncert);
+                    _context.Update(dvorana);
                     await _context.SaveChangesAsync();
                 }
                 catch (DbUpdateConcurrencyException)
                 {
-                    if (!KoncertExists(koncert.Id))
+                    if (!DvoranaExists(dvorana.Id))
                     {
                         return NotFound();
                     }
@@ -118,10 +123,12 @@ namespace Implementacija.Controllers
                 }
                 return RedirectToAction(nameof(Index));
             }
-            return View(koncert);
+            ViewData["iznajmljivacId"] = new SelectList(_context.Iznajmljivaci, "Id", "Id", dvorana.iznajmljivacId);
+            return View(dvorana);
         }
 
-        // GET: Koncert/Delete/5
+        [Authorize(Roles = "Iznajmljivac")]
+        // GET: Dvorana/Delete/5
         public async Task<IActionResult> Delete(int? id)
         {
             if (id == null)
@@ -129,30 +136,32 @@ namespace Implementacija.Controllers
                 return NotFound();
             }
 
-            var koncert = await _context.Koncerti
+            var dvorana = await _context.Dvorane
+                .Include(d => d.iznajmljivac)
                 .FirstOrDefaultAsync(m => m.Id == id);
-            if (koncert == null)
+            if (dvorana == null)
             {
                 return NotFound();
             }
 
-            return View(koncert);
+            return View(dvorana);
         }
 
-        // POST: Koncert/Delete/5
+        [Authorize(Roles = "Iznajmljivac")]
+        // POST: Dvorana/Delete/5
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
-            var koncert = await _context.Koncerti.FindAsync(id);
-            _context.Koncerti.Remove(koncert);
+            var dvorana = await _context.Dvorane.FindAsync(id);
+            _context.Dvorane.Remove(dvorana);
             await _context.SaveChangesAsync();
             return RedirectToAction(nameof(Index));
         }
 
-        private bool KoncertExists(int id)
+        private bool DvoranaExists(int id)
         {
-            return _context.Koncerti.Any(e => e.Id == id);
+            return _context.Dvorane.Any(e => e.Id == id);
         }
     }
 }
