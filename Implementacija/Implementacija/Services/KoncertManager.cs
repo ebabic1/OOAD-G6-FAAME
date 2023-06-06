@@ -20,6 +20,7 @@ namespace Implementacija.Services
         }
         public int GetRemainingSeats(Koncert koncert)
         {
+            if(koncert == null) return 0;
             var rezDvorana = _db.RezervacijaDvorana.Where(rez => rez.izvodjacId == koncert.izvodjacId).FirstOrDefault();
             var dvorana = _db.Dvorane.Where(rez => rez.Id == rezDvorana.dvoranaId).FirstOrDefault();
             var count = _db.RezervacijaKarata.Where(rez => rez.koncertId == koncert.Id).Count();

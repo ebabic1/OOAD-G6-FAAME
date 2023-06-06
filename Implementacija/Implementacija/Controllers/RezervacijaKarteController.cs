@@ -93,7 +93,8 @@ namespace Implementacija.Controllers
         public async Task<IActionResult> CreateReserve([Bind("Id,rezervacijaId,obicniKorisnikId,tipMjesta,koncertId")] RezervacijaKarte rezervacijaKarte)
         {
             var koncertManager = new KoncertManager(_context);
-            int remainingSeats = koncertManager.GetRemainingSeats(rezervacijaKarte.koncert);
+            var koncert = _context.Koncerti.Where(x => x.Id == rezervacijaKarte.koncertId).FirstOrDefault();
+            int remainingSeats = koncertManager.GetRemainingSeats(koncert);
             //treba dodat neku indikaciju da nema vise mjesta 
             if (ModelState.IsValid && remainingSeats > 0)
             {
