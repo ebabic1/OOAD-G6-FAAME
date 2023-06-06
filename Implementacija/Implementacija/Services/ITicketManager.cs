@@ -9,5 +9,7 @@ namespace Implementacija.Services
     {
         public Task<IEnumerable<RezervacijaKarte>> GetAll();
         public IEnumerable<RezervacijaKarte> GetOwned(string currentID);
+        public string GetName(int currentID);
+        public string GetGuy(int currentID);
     }
 }
