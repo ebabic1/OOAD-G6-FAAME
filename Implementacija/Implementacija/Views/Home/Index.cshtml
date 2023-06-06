@@ -181,12 +181,15 @@
                 </thead>
                 <tbody>
 
-                    @foreach (var item in owned)
+                    @foreach (var item in owned.ToList())
                     {
                         <tr>
+                            @{
+                                var parameter2= TicketManager.GetGuy(item.koncertId);
+                            }
                             <td>@Html.DisplayFor(modelItem => item.koncert.naziv)</td>
                             <td>@Html.DisplayFor(modelItem => item.tipMjesta)</td>
-                            <td>@Html.DisplayFor(modelItem => item.koncert.izvodjac.UserName)</td>
+                            <td>@Html.DisplayFor(modelItem => UserManager.FindByIdAsync(parameter2).Result.UserName)</td>
                             <td>@Html.DisplayFor(modelItem => item.koncert.zanr)</td>
                             <td>
 
