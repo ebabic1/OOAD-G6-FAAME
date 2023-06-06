@@ -149,7 +149,7 @@
                 @foreach (var item in concertHalls)
                 {
                     <tr>
-                        <td>@Html.DisplayFor(modelItem => item.iznajmljivac)</td>
+                        <td>@Html.DisplayFor(modelItem => item.nazivDvorane)</td>
                         <td>@Html.DisplayFor(modelItem => UserManager.FindByIdAsync(item.iznajmljivacId).Result.UserName)</td>
                         <td>@Html.DisplayFor(modelItem => item.brojSjedista)</td>
                         <td>@Html.DisplayFor(modelItem => item.adresaDvorane)</td>
