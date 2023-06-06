@@ -1,12 +1,17 @@
 ﻿@using Implementacija.Services
+@using Microsoft.AspNetCore.Identity
+@using System.Web
 @model IEnumerable<Implementacija.Models.Koncert>
 @inject IKoncertManager koncertManager
+@inject ITicketManager TicketManager
+@inject UserManager<IdentityUser> UserManager
 @{
     ViewData["Title"] = "Home Page";
     var concerts = await koncertManager.GetAll();
     var recommended = koncertManager.GetRecommended();
-}
+    var owned = TicketManager.GetOwned(UserManager.GetUserId(User));
 
+}
 <!DOCTYPE html>
 <html>
 <head>
@@ -78,17 +83,21 @@
         </tr>
     </thead>
     <tbody>
-        @foreach (var item in concerts)
-        {
-            <tr>
-                <td>@Html.DisplayFor(modelItem => item.naziv)</td>
-                <td>@Html.DisplayFor(modelItem => item.izvodjac)</td>
-                <td>@Html.DisplayFor(modelItem => item.zanr)</td>
-                <td>
-                    <a class="details-link" asp-controller="Koncert" asp-action="Details" asp-route-id="@item.Id">Details</a>
-                </td>
-            </tr>
-        }
+           
+            
+                @foreach (var item in concerts)
+                {
+                    <tr>
+                        <td>@Html.DisplayFor(modelItem => item.naziv)</td>
+                        <td>@Html.DisplayFor(modelItem => item.izvodjac)</td>
+                        <td>@Html.DisplayFor(modelItem => item.zanr)</td>
+                        <td>
+                            <a class="details-link" asp-controller="Koncert" asp-action="Details" asp-route-id="@item.Id">Details</a>
+                        </td>
+                    </tr>
+                }
+            }
+           
     </tbody>
 </table>
 <br />
@@ -116,5 +125,42 @@
             }
         </tbody>
     </table>
+<br />
+<h2>Vaše Karte</h2>
+    @if (owned != null && owned.Any())
+    {
+        <table>
+            <thead>
+                <tr>
+                    <th>Naziv</th>
+                    <th>TipMjesta</th>
+                    <th>Izvođač</th>
+                    <th>Žanr</th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody>
+
+                @foreach (var item in owned)
+                {
+                    <tr>
+                        <td>@Html.DisplayFor(modelItem => item.koncert.naziv)</td>
+                        <td>@Html.DisplayFor(modelItem => item.tipMjesta)</td>
+                        <td>@Html.DisplayFor(modelItem => item.koncert.izvodjac.UserName)</td>
+                        <td>@Html.DisplayFor(modelItem => item.koncert.zanr)</td>
+                        <td>
+                            <a class="details-link" asp-controller="Koncert" asp-action="Details" asp-route-id="@item.koncert.Id">DetailsRecenzija</a>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    }
+    else 
+    {
+        <b>Nemate trenutno kupljenih karata.</b>
+    }
+
+    
 </body>
 </html>
