@@ -10,6 +10,7 @@
     var concerts = await koncertManager.GetAll();
     var recommended = koncertManager.GetRecommended();
     var owned = TicketManager.GetOwned(UserManager.GetUserId(User));
+    
 
 }
 <!DOCTYPE html>
@@ -89,7 +90,7 @@
                 {
                     <tr>
                         <td>@Html.DisplayFor(modelItem => item.naziv)</td>
-                        <td>@Html.DisplayFor(modelItem => item.izvodjac)</td>
+                        <td>@Html.DisplayFor(modelItem => UserManager.FindByIdAsync(item.izvodjacId).Result.UserName)</td>
                         <td>@Html.DisplayFor(modelItem => item.zanr)</td>
                         <td>
                             <a class="details-link" asp-controller="Koncert" asp-action="Details" asp-route-id="@item.Id">Details</a>
@@ -116,7 +117,7 @@
             {
                 <tr>
                     <td>@Html.DisplayFor(modelItem => item.naziv)</td>
-                    <td>@Html.DisplayFor(modelItem => item.izvodjac)</td>
+                    <td>@Html.DisplayFor(modelItem => UserManager.FindByIdAsync(item.izvodjacId).Result.UserName)</td>
                     <td>@Html.DisplayFor(modelItem => item.zanr)</td>
                     <td>
                         <a class="details-link" asp-controller="Koncert" asp-action="Details" asp-route-id="@item.Id">Details</a>
