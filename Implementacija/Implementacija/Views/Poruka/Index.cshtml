@@ -1,13 +1,15 @@
-﻿@model IEnumerable<Implementacija.Models.Poruka>
-
+﻿@using Implementacija.Services;
+@model IEnumerable<Implementacija.Models.Poruka>
+@inject IPorukaManager PorukaManager
 @{
-    ViewData["Title"] = "Index";
+    ViewData["Title"] = "Messages";
+    var messages = PorukaManager.GetAll();
 }
 
-<h1>Index</h1>
+<h1>Vaše poruke</h1>
 
 <p>
-    <a asp-action="Create">Create New</a>
+    <a asp-action="Create">Pošalji poruku</a>
 </p>
 <table class="table">
     <thead>
@@ -15,24 +17,16 @@
             <th>
                 @Html.DisplayNameFor(model => model.sadrzaj)
             </th>
-            <th>
-                @Html.DisplayNameFor(model => model.primalac)
-            </th>
             <th></th>
         </tr>
     </thead>
     <tbody>
-@foreach (var item in Model) {
+@foreach (var item in messages) {
         <tr>
             <td>
                 @Html.DisplayFor(modelItem => item.sadrzaj)
             </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.primalac.Id)
-            </td>
-            <td>
-                <a asp-action="Edit" asp-route-id="@item.Id">Edit</a> |
-                <a asp-action="Details" asp-route-id="@item.Id">Details</a> |
+            <td style="text-align : end;"> 
                 <a asp-action="Delete" asp-route-id="@item.Id">Delete</a>
             </td>
         </tr>
