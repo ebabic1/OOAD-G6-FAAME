@@ -24,7 +24,7 @@ namespace Implementacija.Services
         public IEnumerable<Poruka> GetAll()
         {
             var userId = _contextAccessor.HttpContext.User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-            return _db.Poruke.Where(poruka => poruka.primalacId == userId);
+            return _db.Poruke.Where(poruka => poruka.primalacId == userId).OrderByDescending(poruka => poruka.Id);
         }
     }
 }
