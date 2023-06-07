@@ -59,7 +59,7 @@ namespace Implementacija.Controllers
             if (artist == null) return NotFound();
             var recenzija = new Recenzija();
             recenzija.izvodjac = artist;
-            recenzija.izvodjac.Id = recenzija.izvodjacId;
+            recenzija.izvodjacId = artist.Id;
             recenzija.rating = 0;
             return View(recenzija);
         }
@@ -89,7 +89,7 @@ namespace Implementacija.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> CreateLeaveReview(Recenzija recenzija)
+        public async Task<IActionResult> CreateLeaveReview([Bind("Id,rating,komentar")] Recenzija recenzija)
         {
 
             if (ModelState.IsValid)
@@ -98,7 +98,7 @@ namespace Implementacija.Controllers
                 await _context.SaveChangesAsync();
                 return RedirectToAction(nameof(Index));
             }
-            ViewData["izvodjacId"] = new SelectList(_context.Izvodjaci, "Id", "Id", recenzija.izvodjacId);
+            
             return View(recenzija);
         }
 
