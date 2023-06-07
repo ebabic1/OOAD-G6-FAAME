@@ -9,6 +9,9 @@ using Implementacija.Data;
 using Implementacija.Models;
 using Microsoft.AspNetCore.Authorization;
 using System.Data;
+using Microsoft.AspNetCore.Identity.UI.V4.Pages.Internal.Account.Manage;
+using Implementacija.Services;
+using System.Security.Claims;
 
 namespace Implementacija.Controllers
 {
@@ -49,17 +52,14 @@ namespace Implementacija.Controllers
 
         // Ostavljanje recenzija
         [Authorize(Roles = "ObicniKorisnik")]
-        public async Task<IActionResult> OstaviRecenziju(string id)
+        public async Task<IActionResult> LeaveReview(string id)
         {
             if (id == null) return NotFound();
-            var izvodjac = await _context.Izvodjaci.FirstOrDefaultAsync(m => m.Id == id);
-            if (izvodjac == null) return NotFound();
+            var artist = await _context.Izvodjaci.FirstOrDefaultAsync(m => m.Id == id);
+            if (artist == null) return NotFound();
             var recenzija = new Recenzija();
-            recenzija.izvodjac = izvodjac;
-            recenzija.rating = 0;
             return View(recenzija);
         }
-
         // GET: Recenzija/Create
         public IActionResult Create()
         {
@@ -81,6 +81,20 @@ namespace Implementacija.Controllers
                 return RedirectToAction(nameof(Index));
             }
             ViewData["izvodjacId"] = new SelectList(_context.Izvodjaci, "Id", "Id", recenzija.izvodjacId);
+            return View(recenzija);
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> CreateLeaveReview([Bind("Id,rating,komentar,izvodjacId")] Recenzija recenzija)
+        {
+            if (ModelState.IsValid)
+            {
+                _context.Add(recenzija);
+                await _context.SaveChangesAsync();
+                return RedirectToAction(nameof(Index));
+            }
+            ViewData["izvodajcId"] = new SelectList(_context.Koncerti, "Id", "Id", recenzija.izvodjacId);
             return View(recenzija);
         }
 

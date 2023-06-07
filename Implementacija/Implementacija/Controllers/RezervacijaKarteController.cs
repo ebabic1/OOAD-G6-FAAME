@@ -49,6 +49,7 @@ namespace Implementacija.Controllers
             }
             return View(rezervacijaKarte);
         }
+
         // Ovo se koristi za rezervaciju karte
         [Authorize(Roles = "ObicniKorisnik")]
         public async Task<IActionResult> Reserve(int? id)
@@ -62,7 +63,7 @@ namespace Implementacija.Controllers
             rezervacija.koncert = koncert;
             return View(rezervacija);
         }
-       
+
         // GET: RezervacijaKarte/Create
         public IActionResult Create()
         {

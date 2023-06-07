@@ -249,7 +249,9 @@
                             <td>@Html.DisplayFor(modelItem => UserManager.FindByIdAsync(parameter2).Result.UserName)</td>
                             <td>@Html.DisplayFor(modelItem => item.koncert.zanr)</td>
                             <td>
-
+                            
+                                <a class="details-link" asp-controller="Koncert" asp-action="Details" asp-route-id="@item.koncertId">Details</a>
+                            
                             </td>
                         </tr>
                     }
