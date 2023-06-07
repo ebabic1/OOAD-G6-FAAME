@@ -40,6 +40,9 @@ namespace Implementacija.Data
             builder.Entity<Poruka>().ToTable("Poruke");
             base.OnModelCreating(builder);       
         }
+
+
+        public DbSet<Implementacija.Models.Rezervacija> Rezervacija { get; set; }
         
     }
 }

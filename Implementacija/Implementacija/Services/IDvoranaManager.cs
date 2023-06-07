@@ -7,5 +7,7 @@ namespace Implementacija.Services
     public interface IDvoranaManager
     {
         public Task<IEnumerable<Dvorana>> GetAll();
+        public Task<IEnumerable<Dvorana>> GetUnreserved();
+        public Task<IEnumerable<Dvorana>> GetReservedByCurrentPerformer();
     }
 }

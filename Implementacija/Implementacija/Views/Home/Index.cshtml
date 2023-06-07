@@ -12,6 +12,8 @@
     var recommended = koncertManager.GetRecommended();
     var owned = TicketManager.GetOwned(UserManager.GetUserId(User));
     var concertHalls = await dvoranaManager.GetAll();
+    var concerHallsThatAreNotTaken = await dvoranaManager.GetUnreserved();
+    var reservedConcertHalls = await dvoranaManager.GetReservedByCurrentPerformer();
 
 }
 <!DOCTYPE html>
@@ -133,6 +135,10 @@
     {
         <br />
         <h2>Dvorane</h2>
+        @if (User.IsInRole("Iznajmljivac"))
+        {
+            <p><a asp-controller="Dvorana" asp-action="Create">Create New</a></p>
+        }
         <table>
             <thead>
                 <tr>
@@ -145,23 +151,74 @@
             </thead>
             <tbody>
 
-
-                @foreach (var item in concertHalls)
+                @if (User.IsInRole("Iznajmljivac"))
                 {
-                    <tr>
-                        <td>@Html.DisplayFor(modelItem => item.nazivDvorane)</td>
-                        <td>@Html.DisplayFor(modelItem => UserManager.FindByIdAsync(item.iznajmljivacId).Result.UserName)</td>
-                        <td>@Html.DisplayFor(modelItem => item.brojSjedista)</td>
-                        <td>@Html.DisplayFor(modelItem => item.adresaDvorane)</td>
-                        <td>
-                            <a class="details-link" asp-controller="Dvorana" asp-action="Details" asp-route-id="@item.Id">Details</a>
-                        </td>
-                    </tr>
+                    @foreach (var item in concertHalls)
+                    {
+                        <tr>
+                            <td>@Html.DisplayFor(modelItem => item.nazivDvorane)</td>
+                            <td>@Html.DisplayFor(modelItem => UserManager.FindByIdAsync(item.iznajmljivacId).Result.UserName)</td>
+                            <td>@Html.DisplayFor(modelItem => item.brojSjedista)</td>
+                            <td>@Html.DisplayFor(modelItem => item.adresaDvorane)</td>
+                            <td>
+                                <a class="details-link" asp-controller="Dvorana" asp-action="Details" asp-route-id="@item.Id">Details</a>
+                            </td>
+                        </tr>
+                    }
+                }
+                @if (User.IsInRole("Izvodjac"))
+                {
+                    @foreach (var item in concerHallsThatAreNotTaken)
+                    {
+                        <tr>
+                            <td>@Html.DisplayFor(modelItem => item.nazivDvorane)</td>
+                            <td>@Html.DisplayFor(modelItem => UserManager.FindByIdAsync(item.iznajmljivacId).Result.UserName)</td>
+                            <td>@Html.DisplayFor(modelItem => item.brojSjedista)</td>
+                            <td>@Html.DisplayFor(modelItem => item.adresaDvorane)</td>
+                            <td>
+                                <a class="details-link" asp-controller="Dvorana" asp-action="Details" asp-route-id="@item.Id">Details</a>
+                            </td>
+                        </tr>
+                    }
                 }
 
 
         </tbody>
     </table>
+    }
+
+@if (User.IsInRole("Izvodjac"))
+    {
+        <br />
+        <h2>Rezervisane Dvorane</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th>Naziv</th>
+                    <th>Iznajmljivac</th>
+                    <th>Broj Sjedista</th>
+                    <th>Adresa</th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var item in reservedConcertHalls)
+                    {
+                        <tr>
+                            <td>@Html.DisplayFor(modelItem => item.nazivDvorane)</td>
+                            <td>@Html.DisplayFor(modelItem => UserManager.FindByIdAsync(item.iznajmljivacId).Result.UserName)</td>
+                            <td>@Html.DisplayFor(modelItem => item.brojSjedista)</td>
+                            <td>@Html.DisplayFor(modelItem => item.adresaDvorane)</td>
+                            <td>
+                                <a class="details-link" asp-controller="Dvorana" asp-action="Details" asp-route-id="@item.Id">Details</a> |
+                                <a class="details-link">Reserve</a>
+                            </td>
+                        </tr>
+                    }
+
+
+            </tbody>
+        </table>
     }
 
 @if (User.IsInRole("ObicniKorisnik"))
