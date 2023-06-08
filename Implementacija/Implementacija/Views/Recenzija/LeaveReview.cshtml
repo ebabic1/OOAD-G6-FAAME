@@ -23,7 +23,7 @@
                 <input asp-for="komentar" class="form-control" />
                 <span asp-validation-for="komentar" class="text-danger"></span>
             </div>
-            
+            @Html.HiddenFor(x => x.izvodjacId)
             <div class="form-group">
                 <input type="submit" value="Create" class="btn btn-primary" />
             </div>
