@@ -19,6 +19,7 @@ namespace Implementacija.Controllers
     public class RezervacijaKarteController : Controller
     {
         private readonly ApplicationDbContext _context;
+        private readonly RezervacijaManager rezervacijaManager = new RezervacijaManager();
 
         public RezervacijaKarteController(ApplicationDbContext context)
         {
@@ -61,6 +62,7 @@ namespace Implementacija.Controllers
             if (koncert == null) return NotFound();
             var rezervacija = new RezervacijaKarte();
             rezervacija.koncert = koncert;
+            ViewBag.Data = rezervacijaManager.GeneratePrices(koncert.Id).Result;
             return View(rezervacija);
         }
 
@@ -99,7 +101,6 @@ namespace Implementacija.Controllers
             //treba dodat neku indikaciju da nema vise mjesta 
             if (ModelState.IsValid && remainingSeats > 0)
             {
-                RezervacijaManager rezervacijaManager = new RezervacijaManager();
                 var rezervacija = new Rezervacija();
                 rezervacija.cijena = await rezervacijaManager.calculatePrice(rezervacijaKarte.tipMjesta,rezervacijaKarte.koncertId);
                 rezervacija.potvrda = false;
@@ -109,6 +110,7 @@ namespace Implementacija.Controllers
                 rezervacijaKarte.obicniKorisnikId = userId;
                 _context.Add(rezervacijaKarte);
                 await _context.SaveChangesAsync();
+                
                 return RedirectToAction(nameof(Index));
             }
             ViewData["koncertId"] = new SelectList(_context.Koncerti, "Id", "Id", rezervacijaKarte.koncertId);

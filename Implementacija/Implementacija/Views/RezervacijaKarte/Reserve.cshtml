@@ -1,9 +1,8 @@
 ﻿@model Implementacija.Models.RezervacijaKarte
 @{
-    Model.koncertId = Model.koncert.Id;
-}
-@{
     ViewData["Title"] = "Reserve";
+    Model.koncertId = Model.koncert.Id;
+    dynamic data = ViewBag.Data;
 }
 @using Implementacija.Services
 @inject IRezervacijaManager rezervacijaManager
@@ -27,7 +26,7 @@
     <div class="col-md-4">
         <form asp-action="CreateReserve">
             <div class="form-group">
-                <label>Ticket Type:</label><br>
+                <label>Ticket Type:@data["PARTER"]</label><br>
                 @{
                     var types = Enum.GetValues(typeof(TipMjesta));
                     <select class="form-control" id="typeSeat" onchange="calculateTicketPrice()">
@@ -61,12 +60,12 @@
 </div>
 
 <script>
-    async function calculateTicketPrice() {
-        let dropdownMenuValue = document.getElementById('typeSeat').value;
-        const concertId = document.getElementById('koncertId').value;
-        const ticketPrice = await rezervacijaManager.calculatePrice(dropdownMenuValue, concertId);
-        console.log(ticketPrice);
-        document.getElementById('ticketPrice').value = ticketPrice.toFixed(2);
+    function calculateTicketPrice() {
+        var element = document.getElementById("typeSeat");
+        var price = document.getElementById("ticketPrice");
+        const type = element.options[element.selectedIndex].text;
+        var vb = JSON.parse('@Html.Raw(Json.Serialize(@data))')
+        ticketPrice.value = vb[type]
     }
 </script>
 
