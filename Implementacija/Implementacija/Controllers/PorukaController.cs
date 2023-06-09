@@ -9,6 +9,7 @@ using Implementacija.Data;
 using Implementacija.Models;
 using Microsoft.AspNetCore.Authorization;
 using System.Security.Claims;
+using Microsoft.AspNetCore.Identity;
 
 namespace Implementacija.Controllers
 {
@@ -16,10 +17,11 @@ namespace Implementacija.Controllers
     public class PorukaController : Controller
     {
         private readonly ApplicationDbContext _context;
-
-        public PorukaController(ApplicationDbContext context)
+        private readonly UserManager<IdentityUser> _userManager;
+        public PorukaController(ApplicationDbContext context, UserManager<IdentityUser> userManager)
         {
             _context = context;
+            _userManager = userManager;
         }
 
         // GET: Poruka
@@ -51,7 +53,9 @@ namespace Implementacija.Controllers
         // GET: Poruka/Create
         public IActionResult Create()
         {
-            ViewData["primalacId"] = new SelectList(_context.ObicniKorisnici, "Id", "Id");
+            // Sada se umjesto primalacId u Create formi prikazuju mejlovi, kasnije se u Create metodi ovaj mejl prevodi opet u Id
+            // Ovo je uradjeno da bi pri odabiru primaoca birali mejl, a ne Id
+            ViewData["primalacId"] = new SelectList(_context.ObicniKorisnici,"Email","Email");
             return View();
         }
 
@@ -67,6 +71,7 @@ namespace Implementacija.Controllers
                 string posiljalac = "Poruka od " + User.Identity.Name + ": ";
                 posiljalac = posiljalac + poruka.sadrzaj;
                 poruka.sadrzaj = posiljalac;
+                poruka.primalacId = _userManager.FindByEmailAsync(poruka.primalacId).Result.Id;
                 _context.Add(poruka);
                 await _context.SaveChangesAsync();
                 return RedirectToAction(nameof(Index));

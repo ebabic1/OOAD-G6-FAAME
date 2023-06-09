@@ -60,7 +60,7 @@ namespace Implementacija.Controllers
             var recenzija = new Recenzija();
             recenzija.izvodjac = artist;
             recenzija.izvodjacId = artist.Id;
-            recenzija.rating = 0;
+            recenzija.rating = 5;
             return View(recenzija);
         }
         // GET: Recenzija/Create
@@ -89,7 +89,7 @@ namespace Implementacija.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> CreateLeaveReview([Bind("Id,rating,komentar")] Recenzija recenzija)
+        public async Task<IActionResult> CreateLeaveReview([Bind("Id,rating,komentar,izvodjacId")] Recenzija recenzija)
         {
 
             if (ModelState.IsValid)
