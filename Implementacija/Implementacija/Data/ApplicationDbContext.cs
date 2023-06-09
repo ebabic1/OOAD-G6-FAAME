@@ -41,8 +41,5 @@ namespace Implementacija.Data
             base.OnModelCreating(builder);       
         }
 
-
-        public DbSet<Implementacija.Models.Rezervacija> Rezervacija { get; set; }
-        
     }
 }
