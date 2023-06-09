@@ -53,6 +53,8 @@ namespace Implementacija.Controllers
         // GET: Poruka/Create
         public IActionResult Create()
         {
+            // Sada se umjesto primalacId u Create formi prikazuju mejlovi, kasnije se u Create metodi ovaj mejl prevodi opet u Id
+            // Ovo je uradjeno da bi pri odabiru primaoca birali mejl, a ne Id
             ViewData["primalacId"] = new SelectList(_context.ObicniKorisnici,"Email","Email");
             return View();
         }
