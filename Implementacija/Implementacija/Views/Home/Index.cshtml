@@ -290,26 +290,47 @@
 
                 infobox.setMap(map);
 
-                var etf = new Microsoft.Maps.Location(43.8563, 18.3959);
-                var pin = new Microsoft.Maps.Pushpin(etf);
+                var concerts = [
+                    {
+                        concertName: 'Concert 1',
+                        performer: 'Performer 1',
+                        latitude: 43.8563,
+                        longitude: 18.3959,
+                        koncertId: 1
+                    },
+                    {
+                        concertName: 'Concert 2',
+                        performer: 'Performer 2',
+                        latitude: 43.8515,
+                        longitude: 18.3970,
+                        koncertId: 2
+                    },
+                    // Ovjde se dodaje jos koncerata
+                ];
 
-                pin.metadata = {
-                    title: 'Naziv',
-                    description: 'Izvođač',
-                    link: '<a href="/Koncert/Details/1" class="details-link">Details</a>'
-                };
+                for (var i = 0; i < concerts.length; i++) {
+                    var concert = concerts[i];
+                    var concertLocation = new Microsoft.Maps.Location(concert.latitude, concert.longitude);
+                    var pin = new Microsoft.Maps.Pushpin(concertLocation);
 
-                Microsoft.Maps.Events.addHandler(pin, 'click', pushpinClicked);
+                    pin.metadata = {
+                        concertName: concert.concertName,
+                        performer: concert.performer,
+                        link: '<a href="/Koncert/Details/' + concert.koncertId + '" class="details-link">Details</a>'
+                    };
 
-                map.entities.push(pin);
+                    Microsoft.Maps.Events.addHandler(pin, 'click', pushpinClicked);
+
+                    map.entities.push(pin);
+                }
             }
 
             function pushpinClicked(e) {
                 if (e.target.metadata) {
                     infobox.setOptions({
                         location: e.target.getLocation(),
-                        title: e.target.metadata.title,
-                        description: e.target.metadata.description + ' ' + e.target.metadata.link,
+                        title: e.target.metadata.concertName,
+                        description: e.target.metadata.performer + '<br>' + e.target.metadata.link,
                         visible: true
                     });
                 }
