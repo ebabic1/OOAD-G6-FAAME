@@ -1,4 +1,6 @@
-﻿using Implementacija.Models;
+﻿using Implementacija.Data;
+using Implementacija.Models;
+using Microsoft.AspNetCore.Http;
 using Microsoft.JSInterop;
 using System;
 using System.Collections.Generic;
@@ -6,11 +8,13 @@ using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
+using Microsoft.EntityFrameworkCore;
 
 namespace Implementacija.Services
 {
     public class RezervacijaManager : IRezervacijaManager
     {
+        
         
         public async Task<double> calculatePrice(TipMjesta t, int koncertId)
         {

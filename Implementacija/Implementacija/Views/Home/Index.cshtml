@@ -14,6 +14,9 @@
     var concertHalls = await dvoranaManager.GetAll();
     var concerHallsThatAreNotTaken = await dvoranaManager.GetUnreserved();
     var reservedConcertHalls = await dvoranaManager.GetReservedByCurrentPerformer();
+    var ownedHalls = await dvoranaManager.GetOwnedByCurrentRenter();
+    var reservedHalls = await dvoranaManager.GetReservations();
+
 
 }
 <!DOCTYPE html>
@@ -185,6 +188,7 @@
 
         </tbody>
     </table>
+        <br />
     }
 
 @if (User.IsInRole("Izvodjac"))
@@ -265,5 +269,86 @@
     }
 
     
+@if (User.IsInRole("Iznajmljivac")){
+        
+            <h2>Vaše Dvorane</h2>
+            @if (ownedHalls != null && ownedHalls.Any())
+            {
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Naziv</th>
+                            <th>Iznajmljivac</th>
+                            <th>Broj Sjedista</th>
+                            <th>Adresa</th>
+                            <th></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+
+                        @foreach (var item in ownedHalls.ToList())
+                        {
+
+                            <tr>
+                                <td>@Html.DisplayFor(modelItem => item.nazivDvorane)</td>
+                                <td>@Html.DisplayFor(modelItem => UserManager.FindByIdAsync(item.iznajmljivacId).Result.UserName)</td>
+                                <td>@Html.DisplayFor(modelItem => item.brojSjedista)</td>
+                                <td>@Html.DisplayFor(modelItem => item.adresaDvorane)</td>
+                                <td>
+                                    <a class="details-link" asp-controller="Dvorana" asp-action="Details" asp-route-id="@item.Id">Details</a>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            <br />
+            }
+
+        
+    else
+    {
+        <b>Trenutno nemate dvorana.</b>
+    }
+    }
+
+
+    @if (User.IsInRole("Iznajmljivac"))
+    {
+
+        <h2>Vaše Rezervisane Dvorane</h2>
+        @if (reservedHalls != null && reservedHalls.Any())
+        {
+            <table>
+                <thead>
+                    <tr>
+                        <th>Dvorana</th>
+                        <th>Izvodjac</th>
+                        <th></th>
+                    </tr>
+                </thead>
+                <tbody>
+
+                    @foreach (var item in reservedHalls.ToList())
+                    {
+                        <tr>
+                            <td>@Html.DisplayFor(modelItem => item.dvorana.nazivDvorane)</td>
+                            <td>@Html.DisplayFor(modelItem => UserManager.FindByIdAsync(item.izvodjacId).Result.UserName)</td>
+                            <td>
+                                <a class="details-link" asp-controller="Koncert" asp-action="Create" asp-route-id="@item.izvodjacId">Details</a>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+            <br />
+        }
+
+
+        else
+        {
+            <b>Trenutno nemate rezervacija dvorana.</b>
+        }
+    }
+
 </body>
 </html>
