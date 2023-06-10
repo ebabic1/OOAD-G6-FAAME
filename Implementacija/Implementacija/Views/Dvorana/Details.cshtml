@@ -39,7 +39,10 @@
 <div>
     <a asp-action="Edit" asp-route-id="@Model.Id">Edit</a> |
     <a asp-action="Index">Back to List</a>
-    <div>
-        <a asp-controller="RezervacijaDvorane" asp-action="Reserve" asp-route-id="@Model.Id" class="btn-reservation">Reserve</a>
-    </div>
+    @if (User.IsInRole("Izvodjac"))
+    {
+        <div>
+            <a asp-controller="RezervacijaDvorane" asp-action="Reserve" asp-route-id="@Model.Id" class="btn-reservation">Reserve</a>
+        </div>
+    }
 </div>

@@ -12,16 +12,20 @@ using System.Data;
 using Microsoft.AspNetCore.Identity;
 using Implementacija.Services;
 using System.Security.Claims;
+using Microsoft.AspNetCore.Http;
 
 namespace Implementacija.Controllers
 {
     public class RezervacijaDvoraneController : Controller
     {
         private readonly ApplicationDbContext _context;
+        private readonly IRezervacijaManager _rezervacijaManager;
 
-        public RezervacijaDvoraneController(ApplicationDbContext context)
+        public RezervacijaDvoraneController(ApplicationDbContext context, IRezervacijaManager rezervacijaManager)
         {
+            
             _context = context;
+            _rezervacijaManager = rezervacijaManager;
         }
 
         // GET: RezervacijaDvorane
@@ -75,7 +79,7 @@ namespace Implementacija.Controllers
             var dvorana = _context.Dvorane.Where(x => x.Id == rezervacijaDvorane.dvoranaId).FirstOrDefault();
             var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
             var artist = _context.Izvodjaci.Where(x => x.Id == userId).FirstOrDefault();
-            if (ModelState.IsValid)
+            if (ModelState.IsValid && _rezervacijaManager.ValidateReservation(dvorana))
             {
                 var rezervacija = new Rezervacija();
                 rezervacija.cijena = 0;
@@ -95,7 +99,8 @@ namespace Implementacija.Controllers
             }
             ViewData["koncertId"] = new SelectList(_context.Koncerti, "Id", "Id", rezervacijaDvorane.dvoranaId);
             ViewData["rezervacijaId"] = new SelectList(_context.Set<Rezervacija>(), "Id", "Id", rezervacijaDvorane.rezervacijaId);
-            return View(rezervacijaDvorane);
+            TempData["ErrorMessage"] = "Vec ste rezervisali neku dvoranu.";
+            return RedirectToAction("Index", "Home");
         }
 
         // GET: RezervacijaDvorane/Create
@@ -114,7 +119,8 @@ namespace Implementacija.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create([Bind("Id,rezervacijaId,izvodjacId,dvoranaId")] RezervacijaDvorane rezervacijaDvorane)
         {
-            if (ModelState.IsValid)
+            var dvorana = _context.Dvorane.Where(o => o.Id == rezervacijaDvorane.dvoranaId).FirstOrDefault();
+            if (ModelState.IsValid && _rezervacijaManager.ValidateReservation(dvorana))
             {
                 _context.Add(rezervacijaDvorane);
                 await _context.SaveChangesAsync();

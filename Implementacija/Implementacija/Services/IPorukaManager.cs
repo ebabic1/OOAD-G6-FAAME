@@ -7,6 +7,6 @@ namespace Implementacija.Services
     public interface IPorukaManager
     {
         public IEnumerable<Poruka> GetAll();
-        
+        public string GetUserId();
     }
 }

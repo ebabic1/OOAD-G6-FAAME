@@ -40,5 +40,18 @@ namespace Implementacija.Services
                 .ToListAsync();
             return reservedDvorane;
         }
+        public async Task<IEnumerable<Dvorana>> GetOwnedByCurrentRenter()
+        {
+            var rez = await _db.Dvorane.Where(d => d.iznajmljivacId == GetUserId()).ToListAsync();
+            return rez;
+        }
+        public async Task<IEnumerable<RezervacijaDvorane>> GetReservations()
+        {
+            var reservedDvorane = await _db.RezervacijaDvorana
+                .Where(dvorana => dvorana.dvorana.iznajmljivacId==GetUserId())
+                .ToListAsync();
+            return reservedDvorane;
+        }
+       
     }
 }

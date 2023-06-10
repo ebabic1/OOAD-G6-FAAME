@@ -9,5 +9,7 @@ namespace Implementacija.Services
         public Task<IEnumerable<Dvorana>> GetAll();
         public Task<IEnumerable<Dvorana>> GetUnreserved();
         public Task<IEnumerable<Dvorana>> GetReservedByCurrentPerformer();
+        public Task<IEnumerable<Dvorana>> GetOwnedByCurrentRenter();
+        public Task<IEnumerable<RezervacijaDvorane>> GetReservations();
     }
 }
