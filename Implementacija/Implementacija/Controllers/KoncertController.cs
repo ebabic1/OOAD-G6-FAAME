@@ -8,6 +8,8 @@ using Microsoft.EntityFrameworkCore;
 using Implementacija.Data;
 using Implementacija.Models;
 using Microsoft.AspNetCore.Authorization;
+using Implementacija.Services;
+using System.Security.Claims;
 
 namespace Implementacija.Controllers
 {
@@ -45,7 +47,7 @@ namespace Implementacija.Controllers
             return View(koncert);
         }
 
-        [Authorize(Roles = "Izvodjac")]
+        //[Authorize(Roles = "Izvodjac")]
         // GET: Koncert/Create
         public IActionResult Create()
         {
