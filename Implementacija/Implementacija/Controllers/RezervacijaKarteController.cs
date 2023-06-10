@@ -112,7 +112,7 @@ namespace Implementacija.Controllers
                 _context.Add(rezervacijaKarte);
                 await _context.SaveChangesAsync();
                 
-                return RedirectToAction(nameof(Index));
+                return RedirectToAction("Index", "Home");
             }
             ViewData["koncertId"] = new SelectList(_context.Koncerti, "Id", "Id", rezervacijaKarte.koncertId);
             ViewData["rezervacijaId"] = new SelectList(_context.Set<Rezervacija>(), "Id", "Id", rezervacijaKarte.rezervacijaId);

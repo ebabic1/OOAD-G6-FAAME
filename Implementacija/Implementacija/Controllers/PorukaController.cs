@@ -10,6 +10,7 @@ using Implementacija.Models;
 using Microsoft.AspNetCore.Authorization;
 using System.Security.Claims;
 using Microsoft.AspNetCore.Identity;
+using Implementacija.Services;
 
 namespace Implementacija.Controllers
 {
@@ -18,10 +19,12 @@ namespace Implementacija.Controllers
     {
         private readonly ApplicationDbContext _context;
         private readonly UserManager<IdentityUser> _userManager;
-        public PorukaController(ApplicationDbContext context, UserManager<IdentityUser> userManager)
+        private readonly IPorukaManager _porukaManager;
+        public PorukaController(ApplicationDbContext context, UserManager<IdentityUser> userManager, IPorukaManager porukaManager)
         {
             _context = context;
             _userManager = userManager;
+            _porukaManager = porukaManager;
         }
 
         // GET: Poruka
@@ -55,7 +58,8 @@ namespace Implementacija.Controllers
         {
             // Sada se umjesto primalacId u Create formi prikazuju mejlovi, kasnije se u Create metodi ovaj mejl prevodi opet u Id
             // Ovo je uradjeno da bi pri odabiru primaoca birali mejl, a ne Id
-            ViewData["primalacId"] = new SelectList(_context.ObicniKorisnici,"Email","Email");
+            // Where je da ne bi prikazalo ulogovanog korisnika u listi primaoca
+            ViewData["primalacId"] = new SelectList(_context.ObicniKorisnici.Where(o => o.Id != _porukaManager.GetUserId()), "Email", "Email"); ;
             return View();
         }
 

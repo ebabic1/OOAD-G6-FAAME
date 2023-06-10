@@ -71,7 +71,30 @@ namespace Implementacija.Controllers
             ViewData["izvodjacId"] = new SelectList(_context.Izvodjaci, "Id", "Id", koncert.izvodjacId);
             return View(koncert);
         }
+        // Ovo se koristi za rezervaciju koncerta
+        [Authorize(Roles = "Iznajmljivac")]
+        public async Task<IActionResult> CreateKoncert(string id)
+        {
+            if (id == null) return NotFound();
+            var artist = await _context.Izvodjaci.FirstOrDefaultAsync(m => m.Id == id);
+            if (artist == null) return NotFound();
+            var koncert = new Koncert();
+            koncert.izvodjac = artist;
+            koncert.izvodjacId = artist.Id;
+            return View(koncert);
+        }
 
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> CreateKoncert([Bind("Id,naziv,izvodjacId,zanr,datum")] Koncert koncert)
+        {
+
+            _context.Add(koncert);
+            await _context.SaveChangesAsync();
+
+            ViewData["izvodjacId"] = new SelectList(_context.Izvodjaci, "Id", "Id", koncert.izvodjacId);
+            return RedirectToAction("Index", "Home");
+        }
         // GET: Koncert/Edit/5
         public async Task<IActionResult> Edit(int? id)
         {
