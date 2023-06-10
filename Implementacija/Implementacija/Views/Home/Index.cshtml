@@ -238,46 +238,48 @@
     }
 
 @if (User.IsInRole("ObicniKorisnik"))
-    {
-        <h2>Vaše Karte</h2>
-        @if (owned != null && owned.Any())
         {
-            <table>
-                <thead>
-                    <tr>
-                        <th>Naziv</th>
-                        <th>TipMjesta</th>
-                        <th>Izvođač</th>
-                        <th>Žanr</th>
-                        <th></th>
-                    </tr>
-                </thead>
-                <tbody>
-
-                    @foreach (var item in owned.ToList())
-                    {
+            <h2>Vaše Karte</h2>
+            @if (owned != null && owned.Any())
+            {
+                <table>
+                    <thead>
                         <tr>
-                            @{
-                                var parameter2= TicketManager.GetGuy(item.koncertId);
-                            }
-                            <td>@Html.DisplayFor(modelItem => item.koncert.naziv)</td>
-                            <td>@Html.DisplayFor(modelItem => item.tipMjesta)</td>
-                            <td>@Html.DisplayFor(modelItem => UserManager.FindByIdAsync(parameter2).Result.UserName)</td>
-                            <td>@Html.DisplayFor(modelItem => item.koncert.zanr)</td>
-                            <td>
-                            
-                                <a class="details-link" asp-controller="Koncert" asp-action="Details" asp-route-id="@item.koncertId">Details</a>
-                            
-                            </td>
+                            <th>Naziv</th>
+                            <th>TipMjesta</th>
+                            <th>Izvođač</th>
+                            <th>Žanr</th>
+                            <th></th>
                         </tr>
-                    }
-                </tbody>
-            </table>
-        }
-        else
-        {
+                    </thead>
+                    <tbody>
 
-    }
+                        @foreach (var item in owned.ToList())
+                        {
+                            <tr>
+                                @{
+                                    var parameter2 = TicketManager.GetGuy(item.koncertId);
+                                }
+                                <td>@Html.DisplayFor(modelItem => item.koncert.naziv)</td>
+                                <td>@Html.DisplayFor(modelItem => item.tipMjesta)</td>
+                                <td>@Html.DisplayFor(modelItem => UserManager.FindByIdAsync(parameter2).Result.UserName)</td>
+                                <td>@Html.DisplayFor(modelItem => item.koncert.zanr)</td>
+                                <td>
+
+                                    <a class="details-link" asp-controller="Koncert" asp-action="Details" asp-route-id="@item.koncertId">Details</a>
+
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            }
+            else
+            {
+
+            }
+
+        }
 
     
 @if (User.IsInRole("Iznajmljivac")){
