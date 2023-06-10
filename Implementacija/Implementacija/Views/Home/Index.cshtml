@@ -81,10 +81,14 @@
     <span class="text-danger">@TempData["ErrorMessage"]</span>
 <br />
     <h2>Aktuelni koncerti</h2>
+    <p>
+        <a asp-controller="Koncert" asp-action="Create">Registriraj Koncert</a>
+    </p>
     <table>
     <thead>
         <tr>
             <th>Naziv</th>
+            <th>Datum</th>
             <th>Izvođač</th>
             <th>Žanr</th>
             <th></th>
@@ -97,6 +101,7 @@
                 {
                     <tr>
                         <td>@Html.DisplayFor(modelItem => item.naziv)</td>
+                    <td>@Html.DisplayFor(modelItem => item.datum)</td>
                         <td>@Html.DisplayFor(modelItem => UserManager.FindByIdAsync(item.izvodjacId).Result.UserName)</td>
                         <td>@Html.DisplayFor(modelItem => item.zanr)</td>
                         <td>
@@ -145,7 +150,10 @@
     {
         <br />
         <h2>Dvorane</h2>
-       
+        @if (User.IsInRole("Iznajmljivac"))
+        {
+            <p><a asp-controller="Dvorana" asp-action="Create">Create New</a></p>
+        }
         <table>
             <thead>
                 <tr>
@@ -192,10 +200,11 @@
 
         </tbody>
     </table>
-        <br />
+    }
+    </table>
     }
 
-@if (User.IsInRole("Izvodjac"))
+    @if (User.IsInRole("Izvodjac"))
     {
         <br />
         <h2>Rezervisane Dvorane</h2>
@@ -267,85 +276,8 @@
         }
         else
         {
-            <b>Nemate trenutno kupljenih karata.</b>
-        }
 
     }
-
-
-    @if (User.IsInRole("ObicniKorisnik"))
-    {
-        <h2>Koncerti u blizini</h2>
-        <div style="margin-top: 2%; margin-bottom: 2%">
-            <div id="myMap" style="position:relative;width:1300px;height:400px;"></div>
-        </div>
-
-        <script type='text/javascript' src='https://www.bing.com/api/maps/mapcontrol?callback=GetMap' async defer></script>
-
-        <script type='text/javascript'>
-            function GetMap() {
-                var map = new Microsoft.Maps.Map('#myMap', {
-                    credentials: 'AuUsqVpLHw7AixifRLyTzgcECS6DV0oonRx65hJH2PmoF3dCEOdZtq0nGYIUqhEa',
-                    center: new Microsoft.Maps.Location(43.8563, 18.4131),
-                    mapTypeId: Microsoft.Maps.MapTypeId.aerial,
-                    zoom: 10
-                });
-
-                infobox = new Microsoft.Maps.Infobox(map.getCenter(), {
-                    visible: false
-                });
-
-                infobox.setMap(map);
-
-                var concerts = [
-                    {
-                        concertName: 'Concert 1',
-                        performer: 'Performer 1',
-                        latitude: 43.8563,
-                        longitude: 18.3959,
-                        koncertId: 1
-                    },
-                    {
-                        concertName: 'Concert 2',
-                        performer: 'Performer 2',
-                        latitude: 43.8515,
-                        longitude: 18.3970,
-                        koncertId: 2
-                    },
-                    // Ovjde se dodaje jos koncerata
-                ];
-
-                for (var i = 0; i < concerts.length; i++) {
-                    var concert = concerts[i];
-                    var concertLocation = new Microsoft.Maps.Location(concert.latitude, concert.longitude);
-                    var pin = new Microsoft.Maps.Pushpin(concertLocation);
-
-                    pin.metadata = {
-                        concertName: concert.concertName,
-                        performer: concert.performer,
-                        link: '<a href="/Koncert/Details/' + concert.koncertId + '" class="details-link">Details</a>'
-                    };
-
-                    Microsoft.Maps.Events.addHandler(pin, 'click', pushpinClicked);
-
-                    map.entities.push(pin);
-                }
-            }
-
-            function pushpinClicked(e) {
-                if (e.target.metadata) {
-                    infobox.setOptions({
-                        location: e.target.getLocation(),
-                        title: e.target.metadata.concertName,
-                        description: e.target.metadata.performer + '<br>' + e.target.metadata.link,
-                        visible: true
-                    });
-                }
-            }
-        </script>
-    }
-
-
 
     
 @if (User.IsInRole("Iznajmljivac")){
@@ -413,7 +345,7 @@
                             <td>@Html.DisplayFor(modelItem => item.dvorana.nazivDvorane)</td>
                             <td>@Html.DisplayFor(modelItem => UserManager.FindByIdAsync(item.izvodjacId).Result.UserName)</td>
                             <td>
-                                <a class="details-link" asp-controller="Koncert" asp-action="Create" asp-route-id="@item.izvodjacId">Details</a>
+                                <a class="details-link" asp-controller="Koncert" asp-action="CreateKoncert" asp-route-id="@item.izvodjacId">Details</a>
                             </td>
                         </tr>
                     }
@@ -429,5 +361,6 @@
         }
     }
 
+    
 </body>
 </html>
