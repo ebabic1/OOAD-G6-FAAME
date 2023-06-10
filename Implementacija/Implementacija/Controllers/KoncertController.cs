@@ -45,7 +45,7 @@ namespace Implementacija.Controllers
             return View(koncert);
         }
 
-        [Authorize(Roles = "Izvodjac")]
+        [Authorize(Roles = "Iznajmljivac")]
         // GET: Koncert/Create
         public IActionResult Create()
         {
