@@ -407,7 +407,7 @@
                             <td>@Html.DisplayFor(modelItem => item.dvorana.nazivDvorane)</td>
                             <td>@Html.DisplayFor(modelItem => UserManager.FindByIdAsync(item.izvodjacId).Result.UserName)</td>
                             <td>
-                                <a class="details-link" asp-controller="Koncert" asp-action="Create" asp-route-id="@item.izvodjacId">Details</a>
+                                <a class="details-link" asp-controller="Koncert" asp-action="CreateKoncert" asp-route-id="@item.izvodjacId">Details</a>
                             </td>
                         </tr>
                     }
