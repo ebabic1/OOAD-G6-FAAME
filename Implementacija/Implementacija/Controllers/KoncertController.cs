@@ -45,7 +45,7 @@ namespace Implementacija.Controllers
             return View(koncert);
         }
 
-        [Authorize(Roles = "Izvodjac")]
+      //  [Authorize(Roles = "Izvodjac")]
         // GET: Koncert/Create
         public IActionResult Create()
         {
@@ -58,10 +58,10 @@ namespace Implementacija.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("Id,naziv,izvodjacId,zanr")] Koncert koncert)
+        public async Task<IActionResult> Create([Bind("Id,naziv,datum,izvodjacId,zanr")] Koncert koncert)
         {
             if (ModelState.IsValid)
-            {
+           {
                 _context.Add(koncert);
                 await _context.SaveChangesAsync();
                 return RedirectToAction(nameof(Index));

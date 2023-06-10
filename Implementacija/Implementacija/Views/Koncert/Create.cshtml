@@ -18,6 +18,10 @@
                 <span asp-validation-for="naziv" class="text-danger"></span>
             </div>
             <div class="form-group">
+                <label asp-for="datum" class="control-label"></label>
+                <input asp-for="datum" class="form-control" type="date" />
+            </div>
+            <div class="form-group">
                 <label asp-for="izvodjacId" class="control-label">Izvođač</label>
                 <select asp-for="izvodjacId" class="form-control" asp-items="ViewBag.izvodjacId"><</select>  
             </div>
