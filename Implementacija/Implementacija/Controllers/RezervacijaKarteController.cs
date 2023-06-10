@@ -19,11 +19,12 @@ namespace Implementacija.Controllers
     public class RezervacijaKarteController : Controller
     {
         private readonly ApplicationDbContext _context;
-        private readonly RezervacijaManager rezervacijaManager = new RezervacijaManager();
+        private readonly IRezervacijaManager _rezervacijaManager;
 
-        public RezervacijaKarteController(ApplicationDbContext context)
+        public RezervacijaKarteController(ApplicationDbContext context, IRezervacijaManager rezervacijaManager)
         {
             _context = context;
+            _rezervacijaManager = rezervacijaManager;
         }
 
         // GET: RezervacijaKarte
@@ -62,7 +63,7 @@ namespace Implementacija.Controllers
             if (koncert == null) return NotFound();
             var rezervacija = new RezervacijaKarte();
             rezervacija.koncert = koncert;
-            ViewBag.Data = rezervacijaManager.GeneratePrices(koncert.Id).Result;
+            ViewBag.Data = _rezervacijaManager.GeneratePrices(koncert.Id).Result;
             return View(rezervacija);
         }
 
@@ -102,7 +103,7 @@ namespace Implementacija.Controllers
             if (ModelState.IsValid && remainingSeats > 0)
             {
                 var rezervacija = new Rezervacija();
-                rezervacija.cijena = await rezervacijaManager.calculatePrice(rezervacijaKarte.tipMjesta,rezervacijaKarte.koncertId);
+                rezervacija.cijena = await _rezervacijaManager.calculatePrice(rezervacijaKarte.tipMjesta,rezervacijaKarte.koncertId);
                 rezervacija.potvrda = false;
                 _context.Add(rezervacija); await _context.SaveChangesAsync();
                 rezervacijaKarte.rezervacijaId = rezervacija.Id;
@@ -115,7 +116,8 @@ namespace Implementacija.Controllers
             }
             ViewData["koncertId"] = new SelectList(_context.Koncerti, "Id", "Id", rezervacijaKarte.koncertId);
             ViewData["rezervacijaId"] = new SelectList(_context.Set<Rezervacija>(), "Id", "Id", rezervacijaKarte.rezervacijaId);
-            return View(rezervacijaKarte);
+            TempData["ErrorMessage"] = "Vec ste rezervisali neku dvoranu.";
+            return RedirectToAction("Index", "Home");
         }
 
         // GET: RezervacijaKarte/Edit/5
