@@ -100,41 +100,47 @@
                         <td>@Html.DisplayFor(modelItem => UserManager.FindByIdAsync(item.izvodjacId).Result.UserName)</td>
                         <td>@Html.DisplayFor(modelItem => item.zanr)</td>
                         <td>
+                        @if (User.IsInRole("ObicniKorisnik"))
+                        {
                             <a class="details-link" asp-controller="Koncert" asp-action="Details" asp-route-id="@item.Id">Details</a>
-                        </td>
+                        }
+                    </td>
                     </tr>
                 }
             
            
     </tbody>
-</table>
-<br />
-    <h2>Preporučeni koncerti</h2>
-    <table>
-        <thead>
-            <tr>
-                <th>Naziv</th>
-                <th>Izvođač</th>
-                <th>Žanr</th>
-                <th></th>
-            </tr>
-        </thead>
-        <tbody>
-            @foreach (var item in recommended)
-            {
-                <tr>
-                    <td>@Html.DisplayFor(modelItem => item.naziv)</td>
-                    <td>@Html.DisplayFor(modelItem => UserManager.FindByIdAsync(item.izvodjacId).Result.UserName)</td>
-                    <td>@Html.DisplayFor(modelItem => item.zanr)</td>
-                    <td>
-                        <a class="details-link" asp-controller="Koncert" asp-action="Details" asp-route-id="@item.Id">Details</a>
-                    </td>
-                </tr>
-            }
-        </tbody>
-    </table>
-<br />
 
+</table>
+ @if (User.IsInRole("ObicniKorisnik"))
+    {
+        <br />
+        <h2>Preporučeni koncerti</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th>Naziv</th>
+                    <th>Izvođač</th>
+                    <th>Žanr</th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var item in recommended)
+                {
+                    <tr>
+                        <td>@Html.DisplayFor(modelItem => item.naziv)</td>
+                        <td>@Html.DisplayFor(modelItem => UserManager.FindByIdAsync(item.izvodjacId).Result.UserName)</td>
+                        <td>@Html.DisplayFor(modelItem => item.zanr)</td>
+                        <td>
+                            <a class="details-link" asp-controller="Koncert" asp-action="Details" asp-route-id="@item.Id">Details</a>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+        <br />
+    }
     @if (User.IsInRole("Izvodjac") || User.IsInRole("Iznajmljivac"))
     {
         <br />
