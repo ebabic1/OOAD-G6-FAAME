@@ -79,41 +79,41 @@
 </head>
 <body>
     <span class="text-danger">@TempData["ErrorMessage"]</span>
-<br />
+    <br />
     <h2>Aktuelni koncerti</h2>
     <p>
         <a asp-controller="Koncert" asp-action="Create">Registriraj Koncert</a>
     </p>
     <table>
-    <thead>
-        <tr>
-            <th>Naziv</th>
-            <th>Datum</th>
-            <th>Izvođač</th>
-            <th>Žanr</th>
-            <th></th>
-        </tr>
-    </thead>
-    <tbody>
-           
-            
-                @foreach (var item in concerts)
-                {
-                    <tr>
-                        <td>@Html.DisplayFor(modelItem => item.naziv)</td>
+        <thead>
+            <tr>
+                <th>Naziv</th>
+                <th>Datum</th>
+                <th>Izvođač</th>
+                <th>Žanr</th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody>
+
+
+            @foreach (var item in concerts)
+            {
+                <tr>
+                    <td>@Html.DisplayFor(modelItem => item.naziv)</td>
                     <td>@Html.DisplayFor(modelItem => item.datum)</td>
-                        <td>@Html.DisplayFor(modelItem => UserManager.FindByIdAsync(item.izvodjacId).Result.UserName)</td>
-                        <td>@Html.DisplayFor(modelItem => item.zanr)</td>
-                        <td>
-                            <a class="details-link" asp-controller="Koncert" asp-action="Details" asp-route-id="@item.Id">Details</a>
-                        </td>
-                    </tr>
-                }
-            
-           
-    </tbody>
-</table>
-<br />
+                    <td>@Html.DisplayFor(modelItem => UserManager.FindByIdAsync(item.izvodjacId).Result.UserName)</td>
+                    <td>@Html.DisplayFor(modelItem => item.zanr)</td>
+                    <td>
+                        <a class="details-link" asp-controller="Koncert" asp-action="Details" asp-route-id="@item.Id">Details</a>
+                    </td>
+                </tr>
+            }
+
+
+        </tbody>
+    </table>
+    <br />
     <h2>Preporučeni koncerti</h2>
     <table>
         <thead>
@@ -138,7 +138,7 @@
             }
         </tbody>
     </table>
-<br />
+    <br />
 
     @if (User.IsInRole("Izvodjac") || User.IsInRole("Iznajmljivac"))
     {
@@ -192,10 +192,8 @@
                 }
 
 
-        </tbody>
-    </table>
-    }
-    </table>
+            </tbody>
+        </table>
     }
 
     @if (User.IsInRole("Izvodjac"))
@@ -214,24 +212,24 @@
             </thead>
             <tbody>
                 @foreach (var item in reservedConcertHalls)
-                    {
-                        <tr>
-                            <td>@Html.DisplayFor(modelItem => item.nazivDvorane)</td>
-                            <td>@Html.DisplayFor(modelItem => UserManager.FindByIdAsync(item.iznajmljivacId).Result.UserName)</td>
-                            <td>@Html.DisplayFor(modelItem => item.brojSjedista)</td>
-                            <td>@Html.DisplayFor(modelItem => item.adresaDvorane)</td>
-                            <td>
-                                <a class="details-link" asp-controller="Dvorana" asp-action="Details" asp-route-id="@item.Id">Details</a> 
-                            </td>
-                        </tr>
-                    }
+                {
+                    <tr>
+                        <td>@Html.DisplayFor(modelItem => item.nazivDvorane)</td>
+                        <td>@Html.DisplayFor(modelItem => UserManager.FindByIdAsync(item.iznajmljivacId).Result.UserName)</td>
+                        <td>@Html.DisplayFor(modelItem => item.brojSjedista)</td>
+                        <td>@Html.DisplayFor(modelItem => item.adresaDvorane)</td>
+                        <td>
+                            <a class="details-link" asp-controller="Dvorana" asp-action="Details" asp-route-id="@item.Id">Details</a>
+                        </td>
+                    </tr>
+                }
 
 
             </tbody>
         </table>
     }
 
-@if (User.IsInRole("ObicniKorisnik"))
+    @if (User.IsInRole("ObicniKorisnik"))
     {
         <h2>Vaše Karte</h2>
         @if (owned != null && owned.Any())
@@ -252,70 +250,67 @@
                     {
                         <tr>
                             @{
-                                var parameter2= TicketManager.GetGuy(item.koncertId);
+                                var parameter2 = TicketManager.GetGuy(item.koncertId);
                             }
                             <td>@Html.DisplayFor(modelItem => item.koncert.naziv)</td>
                             <td>@Html.DisplayFor(modelItem => item.tipMjesta)</td>
                             <td>@Html.DisplayFor(modelItem => UserManager.FindByIdAsync(parameter2).Result.UserName)</td>
                             <td>@Html.DisplayFor(modelItem => item.koncert.zanr)</td>
                             <td>
-                            
+
                                 <a class="details-link" asp-controller="Koncert" asp-action="Details" asp-route-id="@item.koncertId">Details</a>
-                            
+
                             </td>
                         </tr>
                     }
                 </tbody>
             </table>
         }
+
+    }
+
+    @if (User.IsInRole("Iznajmljivac"))
+    {
+
+        <h2>Vaše Dvorane</h2>
+        @if (ownedHalls != null && ownedHalls.Any())
+        {
+            <table>
+                <thead>
+                    <tr>
+                        <th>Naziv</th>
+                        <th>Iznajmljivac</th>
+                        <th>Broj Sjedista</th>
+                        <th>Adresa</th>
+                        <th></th>
+                    </tr>
+                </thead>
+                <tbody>
+
+                    @foreach (var item in ownedHalls.ToList())
+                    {
+
+                        <tr>
+                            <td>@Html.DisplayFor(modelItem => item.nazivDvorane)</td>
+                            <td>@Html.DisplayFor(modelItem => UserManager.FindByIdAsync(item.iznajmljivacId).Result.UserName)</td>
+                            <td>@Html.DisplayFor(modelItem => item.brojSjedista)</td>
+                            <td>@Html.DisplayFor(modelItem => item.adresaDvorane)</td>
+                            <td>
+                                <a class="details-link" asp-controller="Dvorana" asp-action="Details" asp-route-id="@item.Id">Details</a>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+            <br />
+        }
+
+
         else
         {
-
+            <b>Trenutno nemate dvorana.</b>
+        }
     }
-
-    
-@if (User.IsInRole("Iznajmljivac")){
-        
-            <h2>Vaše Dvorane</h2>
-            @if (ownedHalls != null && ownedHalls.Any())
-            {
-                <table>
-                    <thead>
-                        <tr>
-                            <th>Naziv</th>
-                            <th>Iznajmljivac</th>
-                            <th>Broj Sjedista</th>
-                            <th>Adresa</th>
-                            <th></th>
-                        </tr>
-                    </thead>
-                    <tbody>
-
-                        @foreach (var item in ownedHalls.ToList())
-                        {
-
-                            <tr>
-                                <td>@Html.DisplayFor(modelItem => item.nazivDvorane)</td>
-                                <td>@Html.DisplayFor(modelItem => UserManager.FindByIdAsync(item.iznajmljivacId).Result.UserName)</td>
-                                <td>@Html.DisplayFor(modelItem => item.brojSjedista)</td>
-                                <td>@Html.DisplayFor(modelItem => item.adresaDvorane)</td>
-                                <td>
-                                    <a class="details-link" asp-controller="Dvorana" asp-action="Details" asp-route-id="@item.Id">Details</a>
-                                </td>
-                            </tr>
-                        }
-                    </tbody>
-                </table>
-            <br />
-            }
-
-        
-    else
-    {
-        <b>Trenutno nemate dvorana.</b>
-    }
-    }
-
 
     @if (User.IsInRole("Iznajmljivac"))
     {
@@ -355,6 +350,6 @@
         }
     }
 
-    
+
 </body>
 </html>
