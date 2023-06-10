@@ -7,6 +7,8 @@ namespace Implementacija.Models
     {
         [Key]
         public int Id { get; set; }
+        [Required]
+        [Range(1.0, 10.0, ErrorMessage = "Rating mora biti između 1 i 10!")]
         public double rating { get; set; }
         public string komentar { get; set; }
         [ForeignKey("Izvodjac")]

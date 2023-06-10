@@ -1,15 +1,18 @@
 ﻿@using Microsoft.AspNetCore.Identity;
+@using Implementacija.Services
 @model IEnumerable<Implementacija.Models.Recenzija>
 @inject UserManager<IdentityUser> _userManager
+@inject IPorukaManager _porukaManager
 @{
     ViewData["Title"] = "Index";
+    var currentId = _porukaManager.GetUserId();
 }
 
 <h1>Index</h1>
 
-<p>
+<!--<p>
     <a asp-action="Create">Create New</a>
-</p>
+</p>-->
 <table class="table">
     <thead>
         <tr>
@@ -27,22 +30,24 @@
     </thead>
     <tbody>
 @foreach (var item in Model) {
-        <tr>
-            <td>
-                @Html.DisplayFor(modelItem => item.rating)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.komentar)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => _userManager.FindByIdAsync(item.izvodjacId).Result.UserName)
-            </td>
-            <td>
-                <a asp-action="Edit" asp-route-id="@item.Id">Edit</a> |
-                <a asp-action="Details" asp-route-id="@item.Id">Details</a> |
-                <a asp-action="Delete" asp-route-id="@item.Id">Delete</a>
-            </td>
-        </tr>
+            @if (currentId == item.izvodjacId)
+            {
+                <tr>
+                    <td>
+                    @Html.DisplayFor(modelItem => item.rating)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.komentar)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => _userManager.FindByIdAsync(item.izvodjacId).Result.UserName)
+                </td>
+                <td>
+                    <a asp-action="Edit" asp-route-id="@item.Id">Edit</a> |
+                    <a asp-action="Details" asp-route-id="@item.Id">Details</a> |
+                    <a asp-action="Delete" asp-route-id="@item.Id">Delete</a>
+                </td>
+            </tr>}
 }
     </tbody>
 </table>
