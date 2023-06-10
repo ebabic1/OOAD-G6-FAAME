@@ -24,6 +24,7 @@ namespace Implementacija.Data
         public DbSet<Dvorana> Dvorane { get; set; }
         public DbSet<Koncert> Koncerti { get; set; }
         public DbSet<Poruka> Poruke { get; set; }
+        public DbSet<Implementacija.Models.Rezervacija> Rezervacija { get; set; }
 
 
         protected override void OnModelCreating(ModelBuilder builder)

@@ -170,9 +170,12 @@ namespace Implementacija.Controllers
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
             var koncert = await _context.Koncerti.FindAsync(id);
+            var rezervacijaDvorane =  await _context.RezervacijaDvorana.Include(m=>m.rezervacija).FirstOrDefaultAsync(m => m.izvodjacId == koncert.izvodjacId);
+            _context.Rezervacija.Remove(rezervacijaDvorane.rezervacija);
+            _context.RezervacijaDvorana.Remove(rezervacijaDvorane);
             _context.Koncerti.Remove(koncert);
             await _context.SaveChangesAsync();
-            return RedirectToAction(nameof(Index));
+            return RedirectToAction("Index", "Home");
         }
 
         private bool KoncertExists(int id)

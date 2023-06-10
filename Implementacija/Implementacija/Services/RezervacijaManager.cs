@@ -22,7 +22,11 @@ namespace Implementacija.Services
             _db = db;
             _porukaManager = porukaManager;
         }
-
+        public bool HasReservation(string izvodjacId)
+        {
+            var list = _db.RezervacijaDvorana.Where(o => o.izvodjacId == izvodjacId && o.dvorana.iznajmljivac.Id == _porukaManager.GetUserId());
+            return (list.Count() > 0);
+        }
         public async Task<double> calculatePrice(TipMjesta t, int koncertId)
         {
             if (t == TipMjesta.VIP) return 300;

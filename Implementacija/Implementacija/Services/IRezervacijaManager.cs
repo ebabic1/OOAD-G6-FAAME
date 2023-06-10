@@ -9,5 +9,6 @@ namespace Implementacija.Services
         public Task<double> calculatePrice(TipMjesta t, int koncertId);
         public Task<IDictionary<string, double>> GeneratePrices(int koncertId);
         bool ValidateReservation(Dvorana dvorana);
+        public bool HasReservation(string izvodjacId);
     }
 }

@@ -5,6 +5,7 @@
 @inject IKoncertManager koncertManager
 @inject ITicketManager TicketManager
 @inject IDvoranaManager dvoranaManager
+@inject IRezervacijaManager rezervacijaManager
 @inject UserManager<IdentityUser> UserManager
 @{
     ViewData["Title"] = "Home Page";
@@ -99,18 +100,26 @@
 
             @foreach (var item in concerts)
             {
-                <tr>
-                    <td>@Html.DisplayFor(modelItem => item.naziv)</td>
-                    <td>@Html.DisplayFor(modelItem => item.datum)</td>
-                    <td>@Html.DisplayFor(modelItem => UserManager.FindByIdAsync(item.izvodjacId).Result.UserName)</td>
-                    <td>@Html.DisplayFor(modelItem => item.zanr)</td>
-                    <td>
-                        @if (User.IsInRole("ObicniKorisnik"))
-                        {
-                            <a class="details-link" asp-controller="Koncert" asp-action="Details" asp-route-id="@item.Id">Details</a>
-                        }
-                    </td>
+                <!--Za vlasnika samo prikazujemo koncerte  koji su u njegovim dvoranama-->
+                @if (!User.IsInRole("Iznajmljivac") || rezervacijaManager.HasReservation(item.izvodjacId))
+                {
+                    <tr>
+                        <td>@Html.DisplayFor(modelItem => item.naziv)</td>
+                        <td>@Html.DisplayFor(modelItem => item.datum)</td>
+                        <td>@Html.DisplayFor(modelItem => UserManager.FindByIdAsync(item.izvodjacId).Result.UserName)</td>
+                        <td>@Html.DisplayFor(modelItem => item.zanr)</td>
+                        <td>
+                            @if (User.IsInRole("ObicniKorisnik"))
+                            {
+                                <a class="details-link" asp-controller="Koncert" asp-action="Details" asp-route-id="@item.Id">Details</a>
+                            }
+                            @if (User.IsInRole("Iznajmljivac"))
+                            {
+                                <a class="details-link" asp-controller="Koncert" asp-action="Delete" asp-route-id="@item.Id">Delete</a>
+                            }
+                        </td>
                 </tr>
+                }
             }
 
 
@@ -145,7 +154,7 @@
     </table>}
     <br />
 
-    @if (User.IsInRole("Izvodjac") || User.IsInRole("Iznajmljivac"))
+    @if (User.IsInRole("Izvodjac"))
     {
         <br />
         <h2>Dvorane</h2>
