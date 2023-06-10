@@ -8,9 +8,11 @@
     <li class="nav-item">
         <a class="nav-link text-dark" asp-area="" asp-controller="Poruka" asp-action="Index">Messages</a>
     </li>
-        <li class="nav-item">
-            <a class="nav-link text-dark" asp-area="" asp-controller="Recenzija" asp-action="Index">Reviews</a>
-        </li>
+        @if (User.IsInRole("Izvodjac"))
+        {
+            <li class="nav-item">
+                <a class="nav-link text-dark" asp-area="" asp-controller="Recenzija" asp-action="Index">Reviews</a>
+        </li>}
     <li class="nav-item">
         <a  class="nav-link text-dark" asp-area="Identity" asp-page="/Account/Manage/Index" title="Manage">@User.Identity.Name</a>
     </li>
