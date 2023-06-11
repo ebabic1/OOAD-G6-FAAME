@@ -95,7 +95,7 @@ namespace Implementacija.Controllers
                 _context.Add(rezervacijaDvorane);
                 await _context.SaveChangesAsync();
 
-                return RedirectToAction(nameof(Index));
+                return RedirectToAction("Index","Home");
             }
             ViewData["koncertId"] = new SelectList(_context.Koncerti, "Id", "Id", rezervacijaDvorane.dvoranaId);
             ViewData["rezervacijaId"] = new SelectList(_context.Set<Rezervacija>(), "Id", "Id", rezervacijaDvorane.rezervacijaId);
@@ -215,7 +215,13 @@ namespace Implementacija.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
-            var rezervacijaDvorane = await _context.RezervacijaDvorana.FindAsync(id);
+            var rezervacijaDvorane = await _context.RezervacijaDvorana.Include(r => r.rezervacija).FirstOrDefaultAsync(m => m.Id == id);
+            _context.Rezervacija.Remove(rezervacijaDvorane.rezervacija);
+            var koncert = _context.Koncerti.FirstOrDefaultAsync(k => k.izvodjacId == rezervacijaDvorane.izvodjacId);
+            if (koncert.Result != null)
+            {
+                _context.Koncerti.Remove(koncert.Result);
+            }
             _context.RezervacijaDvorana.Remove(rezervacijaDvorane);
             await _context.SaveChangesAsync();
             return RedirectToAction(nameof(Index));

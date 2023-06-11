@@ -55,11 +55,6 @@ namespace Implementacija.Services
             //nadji sve rezervacije od trenutnog korisnika
             list = _db.RezervacijaDvorana.Where(o => o.izvodjacId == i).ToList();
             if (list.Count == 0) return true;
-            else if (list.Count == 1)
-            {
-                var res = list[0];
-                return (res.dvoranaId == d.Id);
-            }
             else return false;
         }
     }
