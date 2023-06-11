@@ -4,9 +4,11 @@ using System;
 using Implementacija.Models;
 using Implementacija.Data;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Authorization;
 
 namespace Implementacija.Controllers
 {
+    [Authorize]
     public class RegistracijaKoncertaController : Controller
     {
         private ApplicationDbContext dd;

@@ -7,9 +7,11 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using Implementacija.Data;
 using Implementacija.Models;
+using Microsoft.AspNetCore.Authorization;
 
 namespace Implementacija.Controllers
 {
+    [Authorize]
     public class IznajmljivacController : Controller
     {
         private readonly ApplicationDbContext _context;

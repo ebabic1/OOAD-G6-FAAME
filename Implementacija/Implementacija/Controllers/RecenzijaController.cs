@@ -15,6 +15,7 @@ using System.Security.Claims;
 
 namespace Implementacija.Controllers
 {
+    [Authorize]
     public class RecenzijaController : Controller
     {
         private readonly ApplicationDbContext _context;

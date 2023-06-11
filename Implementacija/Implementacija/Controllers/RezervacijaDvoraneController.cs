@@ -16,6 +16,7 @@ using Microsoft.AspNetCore.Http;
 
 namespace Implementacija.Controllers
 {
+    [Authorize]
     public class RezervacijaDvoraneController : Controller
     {
         private readonly ApplicationDbContext _context;

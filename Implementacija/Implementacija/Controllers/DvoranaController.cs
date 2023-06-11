@@ -11,6 +11,7 @@ using Microsoft.AspNetCore.Authorization;
 
 namespace Implementacija.Controllers
 {
+    [Authorize]
     public class DvoranaController : Controller
     {
         private readonly ApplicationDbContext _context;

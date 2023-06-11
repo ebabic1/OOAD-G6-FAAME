@@ -13,7 +13,7 @@ using System.Security.Claims;
 
 namespace Implementacija.Controllers
 {
- 
+    [Authorize]
     public class KoncertController : Controller
     {
         private readonly ApplicationDbContext _context;
