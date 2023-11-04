@@ -25,8 +25,32 @@ namespace Implementacija.Services
             var dvorana = _db.Dvorane.Where(rez => rez.Id == rezDvorana.dvoranaId).FirstOrDefault();
             var count = _db.RezervacijaKarata.Where(rez => rez.koncertId == koncert.Id).Count();
             return dvorana.brojSjedista - count;
-        } 
+        }
+        public async Task<IEnumerable<Koncert>> SortAktuelni(string aktuelniSortBy, string aktuelniSortOrder)
+        {
+            var aktuelniConcerts = await GetAll();
+            switch (aktuelniSortBy)
+            {
+                case "naziv":
+                    if (aktuelniSortOrder == "desc")
+                        aktuelniConcerts = aktuelniConcerts.OrderByDescending(c => c.naziv);
+                    else
+                        aktuelniConcerts = aktuelniConcerts.OrderBy(c => c.naziv);
+                    break;
 
+                case "datum":
+                    if (aktuelniSortOrder == "desc")
+                        aktuelniConcerts = aktuelniConcerts.OrderByDescending(c => c.datum);
+                    else
+                        aktuelniConcerts = aktuelniConcerts.OrderBy(c => c.datum);
+                    break;
+
+                default:
+                    aktuelniConcerts = aktuelniConcerts.OrderBy(c => c.naziv);
+                    break;
+            }
+            return aktuelniConcerts;
+        }
     }
     
 }
