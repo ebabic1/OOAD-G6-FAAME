@@ -1,6 +1,7 @@
 ﻿using Implementacija.Data;
 using Implementacija.Models;
 using Microsoft.EntityFrameworkCore;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
@@ -26,30 +27,29 @@ namespace Implementacija.Services
             var count = _db.RezervacijaKarata.Where(rez => rez.koncertId == koncert.Id).Count();
             return dvorana.brojSjedista - count;
         }
-        public async Task<IEnumerable<Koncert>> SortAktuelni(string aktuelniSortBy, string aktuelniSortOrder)
+        public async Task<IEnumerable<Koncert>> SortAktuelni(string aktuelniSortOrder, string searchString)
         {
-            var aktuelniConcerts = await GetAll();
-            switch (aktuelniSortBy)
+            var koncerti = await GetAll();
+            if (!String.IsNullOrEmpty(searchString))
             {
-                case "naziv":
-                    if (aktuelniSortOrder == "desc")
-                        aktuelniConcerts = aktuelniConcerts.OrderByDescending(c => c.naziv);
-                    else
-                        aktuelniConcerts = aktuelniConcerts.OrderBy(c => c.naziv);
+                koncerti = koncerti.Where(s => s.naziv?.Contains(searchString) == true).ToList();
+            }
+            switch (aktuelniSortOrder)
+            {
+                case "name_desc":
+                    koncerti = koncerti.OrderByDescending(s => s.naziv);
                     break;
-
-                case "datum":
-                    if (aktuelniSortOrder == "desc")
-                        aktuelniConcerts = aktuelniConcerts.OrderByDescending(c => c.datum);
-                    else
-                        aktuelniConcerts = aktuelniConcerts.OrderBy(c => c.datum);
+                case "Date":
+                    koncerti = koncerti.OrderBy(s => s.datum);
                     break;
-
+                case "date_desc":
+                    koncerti = koncerti.OrderByDescending(s => s.datum);
+                    break;
                 default:
-                    aktuelniConcerts = aktuelniConcerts.OrderBy(c => c.naziv);
+                    koncerti = koncerti.OrderBy(s => s.naziv);
                     break;
             }
-            return aktuelniConcerts;
+            return koncerti.ToList();
         }
     }
     

@@ -3,6 +3,7 @@ using Implementacija.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Data.SqlClient;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
@@ -24,10 +25,12 @@ namespace Implementacija.Controllers
             _logger = logger;
         }
 
-        public async Task<IActionResult> Index(string aktuelniSortBy, string aktuelniSortOrder)
+        public async Task<IActionResult> Index(string aktuelniSortOrder, string searchString)
         {
-            ViewBag.Koncerti = await _koncertManager.SortAktuelni(aktuelniSortBy,aktuelniSortOrder);
-            return View();
+           ViewData["NameSortParm"] = String.IsNullOrEmpty(aktuelniSortOrder) ? "name_desc" : "";
+           ViewData["DateSortParm"] = aktuelniSortOrder == "Date" ? "date_desc" : "Date";
+            ViewData["CurrentFilter"] = searchString;
+            return View(_koncertManager.SortAktuelni(aktuelniSortOrder, searchString).Result);
         }
 
         public IActionResult Privacy()

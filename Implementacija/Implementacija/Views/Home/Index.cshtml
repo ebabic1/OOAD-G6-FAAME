@@ -9,7 +9,6 @@
 @inject UserManager<IdentityUser> UserManager
 @{
     ViewData["Title"] = "Home Page";
-    var concerts = await koncertManager.GetAll();
     var recommended = koncertManager.GetRecommended();
     var owned = TicketManager.GetOwned(UserManager.GetUserId(User));
     var concertHalls = await dvoranaManager.GetAll();
@@ -17,7 +16,6 @@
     var reservedConcertHalls = await dvoranaManager.GetReservedByCurrentPerformer();
     var ownedHalls = await dvoranaManager.GetOwnedByCurrentRenter();
     var reservedHalls = await dvoranaManager.GetReservations();
-
 
 }
 <!DOCTYPE html>
@@ -32,12 +30,10 @@
         h2 {
             text-align: start;
         }
-
         .image-container {
             height: 25em;
             overflow: hidden;
         }
-
         img {
             width: 100%;
         }
@@ -82,45 +78,49 @@
     <span class="text-danger">@TempData["ErrorMessage"]</span>
     <br />
     <h2>Aktuelni koncerti</h2>
-   
+    <form asp-action="Index" method="get">
+        <div class="form-actions no-color">
+            <p>
+                Find by name: <input type="text" name="SearchString" value="@ViewData["CurrentFilter"]" />
+                <input type="submit" value="Search" class="btn btn-default" /> |
+                <a asp-action="Index">Back to Full List</a>
+            </p>
+        </div>
+    </form>
     <table>
         <thead>
             <tr>
-                <th>Naziv</th>
-                <th>Datum</th>
+                <th><a asp-action="Index" asp-route-aktuelniSortOrder="@ViewData["NameSortParm"]">@Html.DisplayNameFor(model => model.naziv)</a></th>
+                <th><a asp-action="Index" asp-route-aktuelniSortOrder="@ViewData["DateSortParm"]">@Html.DisplayNameFor(model => model.datum)</a></th>
                 <th>Izvođač</th>
                 <th>Žanr</th>
                 <th></th>
             </tr>
         </thead>
         <tbody>
-
-
-            @foreach (var item in concerts)
+            @foreach (Koncert concert in Model)
             {
                 <!--Za vlasnika samo prikazujemo koncerte  koji su u njegovim dvoranama-->
-                @if (!User.IsInRole("Iznajmljivac") || rezervacijaManager.HasReservation(item.izvodjacId))
+                @if (!User.IsInRole("Iznajmljivac") || rezervacijaManager.HasReservation(concert.izvodjacId))
                 {
                     <tr>
-                        <td>@Html.DisplayFor(modelItem => item.naziv)</td>
-                        <td>@Html.DisplayFor(modelItem => item.datum)</td>
-                        <td>@Html.DisplayFor(modelItem => UserManager.FindByIdAsync(item.izvodjacId).Result.UserName)</td>
-                        <td>@Html.DisplayFor(modelItem => item.zanr)</td>
+                        <td>@Html.DisplayFor(modelItem => concert.naziv)</td>
+                        <td>@Html.DisplayFor(modelItem => concert.datum)</td>
+                        <td>@Html.DisplayFor(modelItem => UserManager.FindByIdAsync(concert.izvodjacId).Result.UserName)</td>
+                        <td>@Html.DisplayFor(modelItem => concert.zanr)</td>
                         <td>
                             @if (User.IsInRole("ObicniKorisnik"))
                             {
-                                <a class="details-link" asp-controller="Koncert" asp-action="Details" asp-route-id="@item.Id">Details</a>
+                                <a class="details-link" asp-controller="Koncert" asp-action="Details" asp-route-id="@concert.Id">Details</a>
                             }
                             @if (User.IsInRole("Iznajmljivac"))
                             {
-                                <a class="details-link" asp-controller="Koncert" asp-action="Delete" asp-route-id="@item.Id">Delete</a>
+                                <a class="details-link" asp-controller="Koncert" asp-action="Delete" asp-route-id="@concert.Id">Delete</a>
                             }
                         </td>
                 </tr>
                 }
             }
-
-
         </tbody>
     </table>
     <br />
@@ -323,10 +323,8 @@
             <b>Trenutno nemate dvorana.</b>
         }
     }
-
     @if (User.IsInRole("Iznajmljivac"))
     {
-
         <h2>Vaše Rezervisane Dvorane</h2>
         @if (reservedHalls != null && reservedHalls.Any())
         {
@@ -339,7 +337,6 @@
                     </tr>
                 </thead>
                 <tbody>
-
                     @foreach (var item in reservedHalls.ToList())
                     {
                         <tr>
@@ -355,8 +352,6 @@
             </table>
             <br />
         }
-
-
         else
         {
             <b>Trenutno nemate rezervacija dvorana.</b>
@@ -401,7 +396,6 @@
             pin2.metadata = {
                 title: 'Dvorana Mirza Delibašić',
                 description: 'VC37+RJC, Sarajevo 71000'
-
             };
             pin3.metadata = {
                 title: 'Narodno pozorište Sarajevo',
