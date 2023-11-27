@@ -53,7 +53,7 @@ namespace Implementacija.Controllers
 
         // Ostavljanje recenzija
         [Authorize(Roles = "ObicniKorisnik")]
-        public async Task<IActionResult> LeaveReview(string id)
+        public async Task<IActionResult> LeaveReview(string? id)
         {
             if (id == null) return NotFound();
             var artist = await _context.Izvodjaci.FirstOrDefaultAsync(m => m.Id == id);
