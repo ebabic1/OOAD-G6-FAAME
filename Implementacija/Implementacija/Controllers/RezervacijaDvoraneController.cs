@@ -85,8 +85,7 @@ namespace Implementacija.Controllers
                 var rezervacija = new Rezervacija();
                 rezervacija.cijena = 0;
                 rezervacija.potvrda = true;
-                _context.Add(rezervacija); 
-                await _context.SaveChangesAsync();
+                _context.Add(rezervacija);
                 rezervacijaDvorane.rezervacija = rezervacija;
                 rezervacijaDvorane.rezervacijaId = rezervacija.Id;
                 rezervacijaDvorane.izvodjacId = userId;
