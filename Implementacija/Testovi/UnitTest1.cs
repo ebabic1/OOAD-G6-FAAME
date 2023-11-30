@@ -8,8 +8,10 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
+using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using System.Security.Claims;
 using System.Threading.Tasks;
 
@@ -20,6 +22,11 @@ namespace Testovi
     {
         private ApplicationDbContext _dbContext;
         private IRezervacijaManager rezervacijaManager;
+        private Dvorana dvorana;
+        private Izvodjac izvodjac;
+        private Rezervacija rezervacija;
+        private RezervacijaDvorane rezervacijaDvorane;
+        private Iznajmljivac iznajmljivac;
         [TestInitialize]
         public  void Setup()
         {
@@ -35,41 +42,38 @@ namespace Testovi
             _dbContext = new ApplicationDbContext(options);
             var httpContextAccessor = new HttpContextAccessor();
             var porukaManager = new PorukaManager(_dbContext, httpContextAccessor);
-
-            // Instantiate RezervacijaManager
             rezervacijaManager=  new RezervacijaManager(_dbContext, porukaManager);
-            var izvodjac = new Izvodjac
+            izvodjac = new Izvodjac
             {
                 Email = "a@gmail.com",
                 UserName = "username",
                 Id = "1"
             };
-            var iznajmljivac = new Iznajmljivac
+            iznajmljivac = new Iznajmljivac
             {
                 Email = "b@gmail.com",
                 UserName = "username",
                 Id = "2"
             };
-            var rezervacija = new Rezervacija
+            rezervacija = new Rezervacija
             {
                 cijena = 0,
                 potvrda = true,
                 Id = 1
             };
-            var dvorana = new Dvorana
+            dvorana = new Dvorana
             {
                 brojSjedista = 2,
                 iznajmljivacId = "2",
                 adresaDvorane = "test",
                 nazivDvorane = "test"
             };
-            var rezervacijaDvorane = new RezervacijaDvorane
+            rezervacijaDvorane = new RezervacijaDvorane
             {
                 rezervacijaId = 1,
                 izvodjacId = "1",
                 dvoranaId = 1
             };
-
             _dbContext.AddRange(izvodjac, iznajmljivac, rezervacija, dvorana, rezervacijaDvorane);
         }
         [TestMethod]
@@ -339,12 +343,84 @@ namespace Testovi
             Assert.IsNotNull(result);
             Assert.AreEqual("Index", result.ActionName);
 
-
             var updatedReservation = _dbContext.RezervacijaDvorana.FirstOrDefault(r => r.Id == novaRezervacija.Id);
             Assert.IsNotNull(updatedReservation);
             Assert.AreEqual(novaRezervacija.izvodjacId, updatedReservation.izvodjacId);
-           
         }
+        [TestMethod]
+        public async Task Delete_WithValidId_ReturnsViewWithModel()
+        {
+            await _dbContext.SaveChangesAsync();
+
+            var controller = new RezervacijaDvoraneController(_dbContext, rezervacijaManager);
+            var nullResult = await controller.Delete(null) as NotFoundResult;
+            Assert.IsNotNull(nullResult);
+            var invalidResult = await controller.Delete(999) as NotFoundResult;
+            Assert.IsNotNull(invalidResult);
+            var result = await controller.Delete(rezervacijaDvorane.Id) as ViewResult;
+            Assert.IsNotNull(result);
+            var model = result.Model as RezervacijaDvorane;
+            Assert.IsNotNull(model);
+            Assert.AreEqual(rezervacijaDvorane.Id, model.Id);
+            Assert.IsNotNull(model.dvorana);
+            Assert.IsNotNull(model.izvodjac);
+            Assert.IsNotNull(model.rezervacija);
+        }
+
+        [TestMethod]
+        public async Task DeleteConfirmed_WithValidId_DeletesReservationAndRedirectsToIndex()
+        {
+            // Arrange
+            var controller = new RezervacijaDvoraneController(_dbContext, rezervacijaManager);
+            _dbContext.Dvorane.Add(dvorana);
+            _dbContext.Izvodjaci.Add(izvodjac);
+            _dbContext.RezervacijaDvorana.Add(rezervacijaDvorane);
+            await _dbContext.SaveChangesAsync();
+
+            // Act
+            var result = await controller.DeleteConfirmed(rezervacija.Id) as RedirectToActionResult;
+
+            // Assert
+            Assert.IsNotNull(result);
+            Assert.AreEqual("Index", result.ActionName);
+
+            var deletedReservation = _dbContext.RezervacijaDvorana.FirstOrDefault(r => r.Id == rezervacijaDvorane.Id);
+            Assert.IsNull(deletedReservation);
+        }
+        [TestMethod]
+        public async Task Edit_WithDifferentIds_ReturnsCorrectResult()
+        {
+            await _dbContext.SaveChangesAsync();
+            var controller = new RezervacijaDvoraneController(_dbContext, rezervacijaManager);
+            // Null Id provided
+            var nullResult = await controller.Edit(null) as NotFoundResult;
+            Assert.IsNotNull(nullResult);
+            // Invalid Id provided
+            var invalidResult = await controller.Edit(999) as NotFoundResult;
+            Assert.IsNotNull(invalidResult);
+            // Valid Id provided
+            var validResult = await controller.Edit(rezervacijaDvorane.Id) as ViewResult;
+            Assert.IsNotNull(validResult);
+            var model = validResult.Model as RezervacijaDvorane;
+            Assert.IsNotNull(model);
+            Assert.AreEqual(rezervacijaDvorane.Id, model.Id);
+        }
+        [TestMethod]
+        public async Task RezervacijaExists_WithValidId_ReturnsTrue()
+        {
+            await _dbContext.SaveChangesAsync();
+            var controller = new RezervacijaDvoraneController(_dbContext, rezervacijaManager);
+
+            var methodInfo = typeof(RezervacijaDvoraneController).GetMethod("RezervacijaDvoraneExists", BindingFlags.NonPublic | BindingFlags.Instance);
+            Assert.IsNotNull(methodInfo, "Method not found");
+
+            var result = methodInfo.Invoke(controller, new object[] { 1 }) as bool?;
+
+            // Assert the result or check behavior
+            Assert.AreEqual(true, result);
+        }
+
+
     }
 
 }
