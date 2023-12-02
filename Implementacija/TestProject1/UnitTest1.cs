@@ -167,7 +167,7 @@ namespace Testovi
             var controller = new RezervacijaKarteController(_context, rezervacijaManager);
 
             // Act
-            var result = await controller.Details(5); 
+            var result = await controller.Details(5); // Ne postoji rezervacija karte sa id-em 5
 
             // Assert
             Assert.IsInstanceOfType(result, typeof(NotFoundResult));
@@ -182,7 +182,7 @@ namespace Testovi
             var controller = new RezervacijaKarteController(_context, rezervacijaManager);
 
             // Act
-            var result = await controller.Details(1);
+            var result = await controller.Details(rezervacijaKarte.Id);
 
             // Assert
             Assert.IsInstanceOfType(result, typeof(ViewResult));
@@ -190,6 +190,54 @@ namespace Testovi
             Assert.IsInstanceOfType(viewResult.Model, typeof(RezervacijaKarte));
             Assert.AreEqual(rezervacijaKarte.Id, ((RezervacijaKarte)viewResult.Model).Id);
         }
+
+        [TestMethod]
+        public async Task Reserve_ReturnsNotFound_WhenIdIsNull()
+        {
+            await _context.SaveChangesAsync();
+            // Arrange
+            var controller = new RezervacijaKarteController(_context, rezervacijaManager);
+
+            // Act
+            var result = await controller.Reserve(null);
+
+            // Assert
+            Assert.IsInstanceOfType(result, typeof(NotFoundResult));
+        }
+
+        [TestMethod]
+        public async Task Reserve_ReturnsNotFound_WhenKoncertDoesNotExist()
+        {
+            await _context.SaveChangesAsync();
+            // Arrange
+            var controller = new RezervacijaKarteController(_context, rezervacijaManager);
+
+            // Act
+            var result = await controller.Reserve(5); // Ne postoji koncert sa id-em 5
+
+            // Assert
+            Assert.IsInstanceOfType(result, typeof(NotFoundResult));
+        }
+
+        [TestMethod]
+        public async Task Reserve_ReturnsViewResult_WhenIdExists()
+        {
+            // Arrange
+            await _context.SaveChangesAsync();
+
+            var controller = new RezervacijaKarteController(_context, rezervacijaManager);
+
+            // Act
+            var result = await controller.Reserve(koncert.Id);
+
+            // Assert
+            Assert.IsInstanceOfType(result, typeof(ViewResult));
+            var viewResult = (ViewResult)result;
+            Assert.IsNotNull(viewResult.Model);
+            Assert.IsInstanceOfType(viewResult.Model, typeof(RezervacijaKarte));
+            Assert.AreEqual(koncert.Id, ((RezervacijaKarte)viewResult.Model).koncert.Id);
+        }
+
         [TestCleanup]
         public void Cleanup()
         {
