@@ -17,6 +17,7 @@ using System.Reflection;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using System.Web.Helpers;
 using System.Xml;
 using System.Xml.Linq;
 
@@ -144,6 +145,18 @@ namespace Testovi
         {
             var controller = new IznajmljivacController(_dbContext);
             var iznajmljivac = new Iznajmljivac { Id = Id, Email = Email, UserName = UserName };
+            var result = await controller.Create(iznajmljivac) as RedirectToActionResult;
+
+            Assert.IsNotNull(result);
+            var check = _dbContext.Iznajmljivaci.Any(x => x.Id == iznajmljivac.Id);
+            Assert.IsTrue(check);
+            Assert.AreEqual("Index", result.ActionName);
+        }
+        [TestMethod]
+        public async Task Create_ValidModelState_RedirectsToIndex()
+        {
+            var controller = new IznajmljivacController(_dbContext);
+            var iznajmljivac = new Iznajmljivac { Id = "999", Email = "mail@gmail.com", UserName = "temp" };
             var result = await controller.Create(iznajmljivac) as RedirectToActionResult;
 
             Assert.IsNotNull(result);
