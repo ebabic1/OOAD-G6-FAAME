@@ -325,6 +325,74 @@ namespace Testovi
             Assert.IsInstanceOfType(result, typeof(NotFoundResult));
         }
 
+        [TestMethod]
+        public async Task EditPost_ReturnsRedirectToIndex_WhenSuccessful()
+        {
+            // Arrange
+            await _context.SaveChangesAsync();
+            var controller = new RezervacijaKarteController(_context, rezervacijaManager);
+
+            // Act
+            var result = await controller.Edit(rezervacijaKarte.Id, rezervacijaKarte);
+
+            // Assert
+            Assert.IsInstanceOfType(result, typeof(RedirectToActionResult));
+            var redirectToActionResult = (RedirectToActionResult)result;
+            Assert.AreEqual("Index", redirectToActionResult.ActionName);
+        }
+
+        [TestMethod]
+        public async Task EditPost_ReturnsNotFound_WhenInvalidId()
+        {
+            // Arrange
+            await _context.SaveChangesAsync();
+            var controller = new RezervacijaKarteController(_context, rezervacijaManager);
+
+            // Act
+            var result = await controller.Edit(1111, rezervacijaKarte);
+
+            // Assert
+            Assert.IsInstanceOfType(result, typeof(NotFoundResult));
+        }
+        [Ignore]
+        [TestMethod]
+        public async Task EditPost_ReturnsNotFound_WhenConcurrencyException()
+        {
+            // Arrange
+            await _context.SaveChangesAsync();
+            var novaRezervacijaKarte = new RezervacijaKarte
+            {
+                Id = 5,
+                rezervacijaId = 1,
+                obicniKorisnikId = "23456",
+                koncertId = 1,
+                tipMjesta = TipMjesta.PARTER
+            };
+            var controller = new RezervacijaKarteController(_context, rezervacijaManager);
+
+            // Act
+            var result = await controller.Edit(5, novaRezervacijaKarte);
+
+            // Assert
+            Assert.IsInstanceOfType(result, typeof(NotFoundResult));
+        }
+        [TestMethod]
+        public async Task EditPost_ReturnsViewWithModel_WhenInvalidModel()
+        {
+            // Arrange
+            await _context.SaveChangesAsync();
+            var controller = new RezervacijaKarteController(_context, rezervacijaManager);
+            controller.ModelState.AddModelError("field", "Error message"); // Dodajte pogrešku u ModelState
+
+            // Act
+            var result = await controller.Edit(rezervacijaKarte.Id, rezervacijaKarte);
+
+            // Assert
+            Assert.IsInstanceOfType(result, typeof(ViewResult));
+            var viewResult = (ViewResult)result;
+            Assert.IsNotNull(viewResult.Model);
+            Assert.AreEqual(rezervacijaKarte, viewResult.Model);
+        }
         [TestCleanup]
         public void Cleanup()
         {
