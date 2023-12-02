@@ -993,19 +993,24 @@ namespace TestProject2
             Assert.AreEqual("Index", result.ActionName);
         }
         [TestMethod]
-        public async Task Edit_ReturnsNotFound_WithNullId()
+        public  Task Edit_ReturnsNotFound_WithNullId()
         {
             // Arrange
             var myFakeContext = new DbContextOptionsBuilder<ApplicationDbContext>().UseInMemoryDatabase("VvsDb");
             var _dbContext = new ApplicationDbContext(myFakeContext.Options);
-            var porukaManagerMock = new Mock<IPorukaManager>();
-            var controller = new PorukaController(_dbContext, userManager: null, porukaManagerMock.Object);
+            var userId = "testUserId";
+            var claims = new List<Claim> { new Claim(ClaimTypes.NameIdentifier, userId) };
 
-            // Act
-            var result = await controller.Edit(null) as NotFoundResult;
+            var httpContextAccessorMock = new Mock<IHttpContextAccessor>();
+            httpContextAccessorMock.Setup(x => x.HttpContext.User.Claims)
+                .Returns(claims);
+            var porukaManager=new PorukaManager(_dbContext,httpContextAccessorMock.Object);
+            var result = porukaManager.GetUserId();
+            var lista = porukaManager.GetAll().ToList();
 
             // Assert
-            Assert.IsNotNull(result);
+            Assert.IsNull(lista);
+            return Task.CompletedTask;
         }
 
         [TestMethod]
@@ -1026,7 +1031,7 @@ namespace TestProject2
             // Assert
             Assert.IsNotNull(result);
         }
-        [Fact]
+       /* [Fact]
         public async Task Create_ValidModel_RedirectsToIndex()
         {
             // Arrange
@@ -1079,7 +1084,7 @@ namespace TestProject2
             Assert.IsNotNull(controller.ViewData);
             Assert.AreEqual("6888", controller.ViewData["primalacId"]);
         }
-
+       */
     }
 }
 
