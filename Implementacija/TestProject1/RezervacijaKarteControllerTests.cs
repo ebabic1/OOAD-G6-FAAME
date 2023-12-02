@@ -439,6 +439,22 @@ namespace Testovi
             Assert.IsInstanceOfType(viewResult.Model, typeof(RezervacijaKarte));
             Assert.AreEqual(rezervacijaKarte.Id, ((RezervacijaKarte)viewResult.Model).Id);
         }
+
+        [TestMethod]
+        public async Task DeleteConfirmed_ReturnsRedirectToIndex_WhenReservationExists()
+        {
+            // Arrange
+            await _context.SaveChangesAsync();
+            var controller = new RezervacijaKarteController(_context, rezervacijaManager);
+
+            // Act
+            var result = await controller.DeleteConfirmed(rezervacijaKarte.Id);
+
+            // Assert
+            Assert.IsInstanceOfType(result, typeof(RedirectToActionResult));
+            var redirectToActionResult = (RedirectToActionResult)result;
+            Assert.AreEqual("Index", redirectToActionResult.ActionName);
+        }
         [TestCleanup]
         public void Cleanup()
         {
