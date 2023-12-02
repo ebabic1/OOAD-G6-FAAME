@@ -95,6 +95,7 @@ namespace Implementacija.Controllers
                 return NotFound();
             }
 
+
             if (ModelState.IsValid)
             {
                 try
@@ -107,10 +108,6 @@ namespace Implementacija.Controllers
                     if (!IzvodjacExists(izvodjac.Id))
                     {
                         return NotFound();
-                    }
-                    else
-                    {
-                        throw;
                     }
                 }
                 return RedirectToAction(nameof(Index));
@@ -136,7 +133,7 @@ namespace Implementacija.Controllers
             return View(izvodjac);
         }
 
-        // POST: Izvodjac/Delete/5
+
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(string id)
