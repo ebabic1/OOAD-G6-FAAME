@@ -15,7 +15,7 @@ using System.Threading.Tasks;
 namespace Testovi
 {
     [TestClass]
-    public class RegistracijaKoncertaControllerTests
+    public class RezervacijaKarteControllerTests
     {
         private ApplicationDbContext _context;
         private IRezervacijaManager rezervacijaManager;
@@ -24,7 +24,6 @@ namespace Testovi
         private RezervacijaKarte rezervacijaKarte;
         private Rezervacija rezervacija;
         private ObicniKorisnik obicniKorisnik;
-        private Koncert koncertForRegister;
         [TestInitialize]
         public void Setup()
         {
@@ -54,14 +53,6 @@ namespace Testovi
                 datum = DateTime.Now,
                 izvodjacId = "12345"
             };
-            koncertForRegister = new Koncert
-            {
-                Id = 2,
-                naziv = "noviKoncert",
-                zanr = Zanr.HIPHOP,
-                datum = DateTime.Now,
-                izvodjacId = "12345"
-            };
             rezervacija = new Rezervacija
             {
                 cijena = 0,
@@ -85,51 +76,6 @@ namespace Testovi
             _context.AddRange(izvodjac, koncert, rezervacija, obicniKorisnik, rezervacijaKarte);
         }
 
-        [TestMethod]
-        public async Task Register_ValidKoncert_RedirectsToConfirmation()
-        {
-            await _context.SaveChangesAsync();
-            var controller = new RegistracijaKoncertaController(_context);
-
-            var result = await controller.Register(koncertForRegister) as RedirectToActionResult;
-
-            Assert.IsNotNull(result);
-            Assert.AreEqual("Confirmation", result.ActionName);
-        }
-
-        [TestMethod]
-        public async Task Register_ValidKoncert_SavesToDatabase()
-        {
-            await _context.SaveChangesAsync();
-            var controller = new RegistracijaKoncertaController(_context);
-
-            await controller.Register(koncertForRegister);
-
-            var savedKoncert = _context.Koncerti.FirstOrDefault(k => k.Id == 1);
-            Assert.IsNotNull(savedKoncert);
-            Assert.AreEqual(Zanr.HIPHOP, savedKoncert.zanr);
-        }
-
-        [TestMethod]
-        public async Task Confirmation_ReturnsView()
-        {
-            await _context.SaveChangesAsync();
-            var controller = new RegistracijaKoncertaController(_context);
-
-            var result = controller.Confirmation() as ViewResult;
-            Assert.IsNotNull(result);
-            Assert.IsInstanceOfType(result, typeof(ViewResult));
-        }
-        [TestMethod]
-        public async Task Register_ReturnsView()
-        {
-            await _context.SaveChangesAsync();
-            var controller = new RegistracijaKoncertaController(_context);
-
-            var result = controller.Register() as ViewResult;
-            Assert.IsNotNull(result);
-            Assert.IsInstanceOfType(result, typeof(ViewResult));
-        }
         [TestMethod]
         public async Task Index_ReturnsViewWithModel()
         {
@@ -250,11 +196,6 @@ namespace Testovi
             if (koncertToDelete != null)
             {
                 _context.Koncerti.Remove(koncertToDelete);
-            }
-            var koncertForRegisterToDelete = _context.Koncerti.FirstOrDefault(k => k.Id == 2);
-            if (koncertForRegisterToDelete != null)
-            {
-                _context.Koncerti.Remove(koncertForRegisterToDelete);
             }
             var rezervacijaToDelete = _context.Rezervacija.FirstOrDefault(k => k.Id == 1);
             if (rezervacijaToDelete != null)
