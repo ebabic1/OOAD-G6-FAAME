@@ -38,10 +38,13 @@ namespace Testovi
                 .UseInMemoryDatabase(databaseName: "TestDatabase")
                 .UseInternalServiceProvider(serviceProvider)
                 .Options;
-
+            var mockHttpContextAccessor = new Mock<IHttpContextAccessor>();
+            var context = new DefaultHttpContext();
+            var fakeUserId = "abcd";
+            context.Request.Headers["User-ID"] = fakeUserId;
+            mockHttpContextAccessor.Setup(_ => _.HttpContext).Returns(context);
             _dbContext = new ApplicationDbContext(options);
-            var httpContextAccessor = new HttpContextAccessor();
-            var porukaManager = new PorukaManager(_dbContext, httpContextAccessor);
+            var porukaManager = new PorukaManager(_dbContext, mockHttpContextAccessor.Object);
             rezervacijaManager=  new RezervacijaManager(_dbContext, porukaManager);
             izvodjac = new Izvodjac
             {
@@ -261,8 +264,8 @@ namespace Testovi
             // Arrange
 
             var _controller = new RezervacijaDvoraneController(_dbContext, rezervacijaManager);
-            
-            
+
+
             var izvodjac = new Izvodjac
             {
                 Email = "ab@gmail.com",
@@ -303,7 +306,7 @@ namespace Testovi
             Assert.AreEqual("Index", result.ActionName);
 
 
-            var indexResult = await  _controller.Index() as ViewResult;
+            var indexResult = await _controller.Index() as ViewResult;
             Assert.IsNotNull(indexResult);
             var model = indexResult.Model as List<RezervacijaDvorane>;
             Assert.IsNotNull(model);
