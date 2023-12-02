@@ -22,6 +22,7 @@ namespace Testovi
         private Izvodjac izvodjac;
         private Koncert koncert;
         private RezervacijaKarte rezervacijaKarte;
+        private RezervacijaKarte rezervacijaKarteForCreate;
         private Rezervacija rezervacija;
         private ObicniKorisnik obicniKorisnik;
         [TestInitialize]
@@ -68,6 +69,14 @@ namespace Testovi
             rezervacijaKarte = new RezervacijaKarte
             {
                 Id = 1,
+                rezervacijaId = 1,
+                obicniKorisnikId = "23456",
+                koncertId = 1,
+                tipMjesta = TipMjesta.PARTER
+            };
+            rezervacijaKarteForCreate = new RezervacijaKarte
+            {
+                Id = 2,
                 rezervacijaId = 1,
                 obicniKorisnikId = "23456",
                 koncertId = 1,
@@ -196,6 +205,38 @@ namespace Testovi
             // Assert
             Assert.IsInstanceOfType(result, typeof(ViewResult));
         }
+
+        [TestMethod]
+        public async Task Create_ReturnsRedirectToActionResult_WhenModelStateIsValid()
+        {
+            // Arrange
+            await _context.SaveChangesAsync();
+            var controller = new RezervacijaKarteController(_context, rezervacijaManager);
+
+            // Act
+            var result = await controller.Create(rezervacijaKarteForCreate);
+
+            // Assert
+            Assert.IsInstanceOfType(result, typeof(RedirectToActionResult));
+            var redirectToActionResult = (RedirectToActionResult)result;
+            Assert.AreEqual("Index", redirectToActionResult.ActionName);
+        }
+
+        [TestMethod]
+        public async Task Create_ReturnsViewResult_WhenModelStateIsInvalid()
+        {
+
+            // Arrange
+            await _context.SaveChangesAsync();
+            var controller = new RezervacijaKarteController(_context, rezervacijaManager);
+            controller.ModelState.AddModelError("FieldName", "Error Message");
+
+            // Act
+            var result = await controller.Create(rezervacijaKarteForCreate);
+
+            // Assert
+            Assert.IsInstanceOfType(result, typeof(ViewResult));
+        }
         [TestCleanup]
         public void Cleanup()
         {
@@ -223,6 +264,11 @@ namespace Testovi
             if (rezervacijaKarteToDelete != null)
             {
                 _context.RezervacijaKarata.Remove(rezervacijaKarteToDelete);
+            }
+            var rezervacijaKarteForCreateToDelete = _context.RezervacijaKarata.FirstOrDefault(k => k.Id == 2);
+            if (rezervacijaKarteForCreateToDelete != null)
+            {
+                _context.RezervacijaKarata.Remove(rezervacijaKarteForCreateToDelete);
             }
 
             _context.SaveChanges();
