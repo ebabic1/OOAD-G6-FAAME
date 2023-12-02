@@ -25,6 +25,9 @@ namespace Testovi
         private RezervacijaKarte rezervacijaKarteForCreate;
         private Rezervacija rezervacija;
         private ObicniKorisnik obicniKorisnik;
+        private Iznajmljivac iznajmljivac;
+        private Dvorana dvorana;
+        private RezervacijaDvorane rezervacijaDvorane;
         [TestInitialize]
         public void Setup()
         {
@@ -82,7 +85,28 @@ namespace Testovi
                 koncertId = 1,
                 tipMjesta = TipMjesta.PARTER
             };
-            _context.AddRange(izvodjac, koncert, rezervacija, obicniKorisnik, rezervacijaKarte);
+            iznajmljivac = new Iznajmljivac
+            {
+                Id = "34567",
+                UserName = "NoviIznajmljivac",
+                Email = "noviiznajmljivac@example.com"
+            };
+            dvorana = new Dvorana
+            {
+                Id = 1,
+                nazivDvorane = "Naziv nove dvorane",
+                adresaDvorane = "Adresa nove dvorane",
+                brojSjedista = 100, // Postavite željeni broj sjedala
+                iznajmljivacId = "34567" // Postavite ID iznajmljivaèa, ovisno o vašoj implementaciji
+            };
+            rezervacijaDvorane = new RezervacijaDvorane
+            {
+                Id = 1,
+                rezervacijaId = 1,
+                izvodjacId = "12345",
+                dvoranaId = 1
+            };
+            _context.AddRange(izvodjac, koncert, rezervacija, obicniKorisnik, rezervacijaKarte, iznajmljivac, dvorana, rezervacijaDvorane);
         }
 
         [TestMethod]
@@ -237,6 +261,70 @@ namespace Testovi
             // Assert
             Assert.IsInstanceOfType(result, typeof(ViewResult));
         }
+        [Ignore]
+        [TestMethod]
+        public async Task CreateReserve_ReturnsRedirectToActionResult_WhenReservationIsSuccessful()
+        {
+            // Arrange
+            await _context.SaveChangesAsync();
+            var controller = new RezervacijaKarteController(_context, rezervacijaManager);
+
+            // Act
+            var result = await controller.CreateReserve(rezervacijaKarteForCreate);
+
+            // Assert
+            Assert.IsInstanceOfType(result, typeof(RedirectToActionResult));
+            var redirectToActionResult = (RedirectToActionResult)result;
+            Assert.AreEqual("Index", redirectToActionResult.ActionName);
+            Assert.AreEqual("Home", redirectToActionResult.ControllerName);
+        }
+
+        [TestMethod]
+        public async Task Edit_ReturnsViewWithModel_WhenIdIsNotNull()
+        {
+            // Arrange
+            await _context.SaveChangesAsync();
+            var controller = new RezervacijaKarteController(_context, rezervacijaManager);
+
+            // Act
+            var result = await controller.Edit(rezervacijaKarte.Id);
+
+            // Assert
+            Assert.IsInstanceOfType(result, typeof(ViewResult));
+            var viewResult = (ViewResult)result;
+            Assert.IsNotNull(viewResult.Model);
+            var model = (RezervacijaKarte)viewResult.Model;
+            Assert.AreEqual(rezervacijaKarte.Id, model.Id);
+        }
+
+        [TestMethod]
+        public async Task Edit_ReturnsNotFound_WhenIdIsNull()
+        {
+            // Arrange
+            await _context.SaveChangesAsync();
+            var controller = new RezervacijaKarteController(_context, rezervacijaManager);
+
+            // Act
+            var result = await controller.Edit(null);
+
+            // Assert
+            Assert.IsInstanceOfType(result, typeof(NotFoundResult));
+        }
+
+        [TestMethod]
+        public async Task Edit_ReturnsNotFound_WhenReservationNotFound()
+        {
+            // Arrange
+            await _context.SaveChangesAsync();
+            var controller = new RezervacijaKarteController(_context, rezervacijaManager);
+
+            // Act
+            var result = await controller.Edit(1111);
+
+            // Assert
+            Assert.IsInstanceOfType(result, typeof(NotFoundResult));
+        }
+
         [TestCleanup]
         public void Cleanup()
         {
@@ -269,6 +357,21 @@ namespace Testovi
             if (rezervacijaKarteForCreateToDelete != null)
             {
                 _context.RezervacijaKarata.Remove(rezervacijaKarteForCreateToDelete);
+            }
+            var iznajmljivacToDelete = _context.Iznajmljivaci.FirstOrDefault(k => k.Id == "34567");
+            if (iznajmljivacToDelete != null)
+            {
+                _context.Iznajmljivaci.Remove(iznajmljivacToDelete);
+            }
+            var dvoranaToDelete = _context.Dvorane.FirstOrDefault(k => k.Id == 1);
+            if (dvoranaToDelete != null)
+            {
+                _context.Dvorane.Remove(dvoranaToDelete);
+            }
+            var rezervacijaDvoraneToDelete = _context.RezervacijaDvorana.FirstOrDefault(k => k.Id == 1);
+            if (rezervacijaDvoraneToDelete != null)
+            {
+                _context.RezervacijaDvorana.Remove(rezervacijaDvoraneToDelete);
             }
 
             _context.SaveChanges();
