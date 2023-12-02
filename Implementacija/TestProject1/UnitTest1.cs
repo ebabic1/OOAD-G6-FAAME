@@ -143,8 +143,52 @@ namespace Testovi
             Assert.IsNotNull(viewResult.Model);
             var modelReservations = (List<RezervacijaKarte>)viewResult.Model;
             Assert.AreEqual(1, modelReservations.Count);
+        }
 
+        [TestMethod]
+        public async Task Details_ReturnsNotFound_WhenIdIsNull()
+        {
+            await _context.SaveChangesAsync();
+            // Arrange
+            var controller = new RezervacijaKarteController(_context, rezervacijaManager);
 
+            // Act
+            var result = await controller.Details(null);
+
+            // Assert
+            Assert.IsInstanceOfType(result, typeof(NotFoundResult));
+        }
+
+        [TestMethod]
+        public async Task Details_ReturnsNotFound_WhenIdDoesNotExist()
+        {
+            await _context.SaveChangesAsync();
+            // Arrange
+            var controller = new RezervacijaKarteController(_context, rezervacijaManager);
+
+            // Act
+            var result = await controller.Details(5); 
+
+            // Assert
+            Assert.IsInstanceOfType(result, typeof(NotFoundResult));
+        }
+
+        [TestMethod]
+        public async Task Details_ReturnsViewResult_WhenIdExists()
+        {
+            await _context.SaveChangesAsync();
+            // Arrange
+
+            var controller = new RezervacijaKarteController(_context, rezervacijaManager);
+
+            // Act
+            var result = await controller.Details(1);
+
+            // Assert
+            Assert.IsInstanceOfType(result, typeof(ViewResult));
+            var viewResult = (ViewResult)result;
+            Assert.IsInstanceOfType(viewResult.Model, typeof(RezervacijaKarte));
+            Assert.AreEqual(rezervacijaKarte.Id, ((RezervacijaKarte)viewResult.Model).Id);
         }
         [TestCleanup]
         public void Cleanup()
