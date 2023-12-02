@@ -6,15 +6,19 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
+using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Diagnostics;
+using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using System.Xml;
+using System.Xml.Linq;
 
 namespace Testovi
 {
@@ -23,6 +27,48 @@ namespace Testovi
     {
         private ApplicationDbContext _dbContext;
         private Iznajmljivac iznajmljivac;
+
+        public static IEnumerable<object[]> ReadJson()
+        {
+            var filePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "..\\..\\..\\TestData.json");
+            var json = File.ReadAllText(filePath);
+            var jobject = JObject.Parse(json);
+            var users = jobject["user"]?.ToObject<IEnumerable<Iznajmljivac>>();
+
+            foreach (var user in users ?? Enumerable.Empty<Iznajmljivac>())
+            {
+                yield return new[] { user };
+            }
+        }
+        static IEnumerable<object[]> IznajmljivaciJSON
+        {
+            get
+            {
+                return ReadJson();
+            }
+        }
+        public static IEnumerable<object[]> ReadXML()
+        {
+            var filePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "..\\..\\..\\TestData.xml");
+            var xml = XDocument.Load(filePath);
+
+            var izvodjaci = xml.Descendants("Izvodjac")
+                .Select(izvodjac => new object[]
+                {
+            izvodjac.Element("Id")?.Value,
+            izvodjac.Element("UserName")?.Value,
+            izvodjac.Element("Email")?.Value
+                });
+
+            return izvodjaci;
+        }
+        static IEnumerable<object[]> IznajmljivaciXML
+        {
+            get
+            {
+                return ReadXML();
+            }
+        }
         [TestInitialize]
         public void Setup()
         {
@@ -39,7 +85,7 @@ namespace Testovi
             );
             _dbContext.SaveChanges();
         }
-
+        
         [TestMethod]
         public async Task Index_ReturnsViewWithListOfIznajmljivaci()
         {
@@ -80,15 +126,28 @@ namespace Testovi
             Assert.AreEqual(404, result2.StatusCode);
         }
         [TestMethod]
-        public async Task Create_ValidModelState_RedirectsToIndex()
+        [DynamicData("IznajmljivaciJSON")]
+        public async Task Create_ValidModelState_RedirectsToIndexJSON(Iznajmljivac iznajmljivac)
         {
-            var iznajmljivacTemp = new Iznajmljivac { Id = "4", UserName = "Iznajmljivac4", Email = "user4@example.com" };
             var controller = new IznajmljivacController(_dbContext);
 
-            var result = await controller.Create(iznajmljivacTemp) as RedirectToActionResult;
+            var result = await controller.Create(iznajmljivac) as RedirectToActionResult;
 
             Assert.IsNotNull(result);
-            var check = _dbContext.Iznajmljivaci.Any(x => x.Id == "4");
+            var check = _dbContext.Iznajmljivaci.Any(x => x.Id == iznajmljivac.Id);
+            Assert.IsTrue(check);
+            Assert.AreEqual("Index", result.ActionName);
+        }
+        [TestMethod]
+        [DynamicData("IznajmljivaciXML")]
+        public async Task Create_ValidModelState_RedirectsToIndexXML(string Id, string UserName, string Email)
+        {
+            var controller = new IznajmljivacController(_dbContext);
+            var iznajmljivac = new Iznajmljivac { Id = Id, Email = Email, UserName = UserName };
+            var result = await controller.Create(iznajmljivac) as RedirectToActionResult;
+
+            Assert.IsNotNull(result);
+            var check = _dbContext.Iznajmljivaci.Any(x => x.Id == iznajmljivac.Id);
             Assert.IsTrue(check);
             Assert.AreEqual("Index", result.ActionName);
         }
