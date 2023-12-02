@@ -183,7 +183,19 @@ namespace Testovi
             Assert.IsInstanceOfType(viewResult.Model, typeof(RezervacijaKarte));
             Assert.AreEqual(koncert.Id, ((RezervacijaKarte)viewResult.Model).koncert.Id);
         }
+        [TestMethod]
+        public async Task Create_ReturnsViewResult()
+        {
+            await _context.SaveChangesAsync();
+            // Arrange
+            var controller = new RezervacijaKarteController(_context, rezervacijaManager);
 
+            // Act
+            var result = controller.Create();
+
+            // Assert
+            Assert.IsInstanceOfType(result, typeof(ViewResult));
+        }
         [TestCleanup]
         public void Cleanup()
         {
