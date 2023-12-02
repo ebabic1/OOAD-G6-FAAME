@@ -100,7 +100,7 @@ namespace Testovi
             var viewResult = (ViewResult)result;
             Assert.IsNotNull(viewResult.Model);
             var halls = (List<Dvorana>)viewResult.Model;
-            Assert.AreEqual(1, halls.Count);
+            Assert.AreEqual(2, halls.Count);
         }
 
         [TestMethod]
