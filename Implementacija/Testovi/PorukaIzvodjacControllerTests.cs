@@ -1,7 +1,9 @@
 ﻿using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Security.Claims;
 using System.Threading.Tasks;
+using System.Xml.Linq;
 using Implementacija.Controllers;
 using Implementacija.Data;
 using Implementacija.Models;
@@ -15,7 +17,15 @@ using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.VisualBasic;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
-
+using Newtonsoft.Json.Linq;
+using System;
+using System.Data;
+using System.Diagnostics;
+using System.Reflection;
+using System.Text;
+using System.Threading;
+using System.Web.Helpers;
+using System.Xml;
 using Assert = Microsoft.VisualStudio.TestTools.UnitTesting.Assert;
 
 namespace TestProject2
@@ -23,7 +33,66 @@ namespace TestProject2
     [TestClass]
     public class UnitTest1
     {
+        private Izvodjac izvojdac;
+
+        public static IEnumerable<object[]> ReadJson()
+        {
+            var filePath = Path.Combine(System.AppDomain.CurrentDomain.BaseDirectory, "..\\..\\..\\TestData.json");
+            var json = File.ReadAllText(filePath);
+            var jobject = JObject.Parse(json);
+            var users = jobject["user"]?.ToObject<IEnumerable<Izvodjac>>();
+
+            foreach (var user in users ?? Enumerable.Empty<Izvodjac>())
+            {
+                yield return new[] { user };
+            }
+        }
+        static IEnumerable<object[]>izvodjaciJSON
+        {
+            get
+            {
+                return ReadJson();
+            }
+        }
+        public static IEnumerable<object[]> ReadXML()
+        {
+            var filePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "..\\..\\..\\TestData.xml");
+            var xml = XDocument.Load(filePath);
+
+            var izvodjaci = xml.Descendants("Izvodjac")
+                .Select(izvodjac => new object[]
+                {
+            izvodjac.Element("Id")?.Value,
+            izvodjac.Element("UserName")?.Value,
+            izvodjac.Element("Email")?.Value
+                });
+
+            return izvodjaci;
+        }
+        static IEnumerable<object[]> IzvodjaciXML
+        {
+            get
+            {
+                return ReadXML();
+            }
+        }
         [TestMethod]
+        [DynamicData("IzvodjaciXML")]
+        public async Task CreateIzvodjac_ValidModelState_RedirectsToIndexXML(string Id, string UserName, string Email)
+        {
+            var myFakeContext = new DbContextOptionsBuilder<ApplicationDbContext>().UseInMemoryDatabase("VvsDb");
+            var _dbContext = new ApplicationDbContext(myFakeContext.Options);
+            var controller = new IzvodjacController(_dbContext);
+            var iznajmljivac = new Izvodjac { Id = Id, Email = Email, UserName = UserName };
+            var result = await controller.Create(iznajmljivac) as RedirectToActionResult;
+
+            Assert.IsNotNull(result);
+            var check = _dbContext.Izvodjaci.Any(x => x.Id == iznajmljivac.Id);
+            Assert.IsTrue(check);
+            Assert.AreEqual("Index", result.ActionName);
+        }
+
+            [TestMethod]
         public async Task Index_ReturnsViewWithModel()
         {
             var myFakeContext = new DbContextOptionsBuilder<ApplicationDbContext>().UseInMemoryDatabase("VvsDb");
@@ -220,7 +289,7 @@ namespace TestProject2
         [TestMethod]
         public async Task IzvodjacDetailsTest()
         {
-            // Postavite vaš lažni kontekst i dodajte izvođača
+            
             var myFakeContext = new DbContextOptionsBuilder<ApplicationDbContext>().UseInMemoryDatabase("VvsDb");
             var _dbContext = new ApplicationDbContext(myFakeContext.Options);
 
@@ -231,10 +300,10 @@ namespace TestProject2
             _dbContext.Add(izvodjac);
             await _dbContext.SaveChangesAsync();
 
-            // Kreirajte kontroler sa lažnim kontekstom
+           
             var controller = new IzvodjacController(_dbContext);
 
-            // Pozovite Details metodu sa ID izvođača
+            
             var result = await controller.Details(izvodjac.Id) as ViewResult;
 
 
@@ -270,17 +339,11 @@ namespace TestProject2
         [TestMethod]
         public void IzvodjacCreateTest()
         {
-            // Postavite vaš lažni kontekst
+            
             var myFakeContext = new DbContextOptionsBuilder<ApplicationDbContext>().UseInMemoryDatabase("VvsDb");
             var _dbContext = new ApplicationDbContext(myFakeContext.Options);
-
-            // Kreirajte kontroler sa lažnim kontekstom
             var controller = new IzvodjacController(_dbContext);
-
-            // Pozovite Create metodu
             var result = controller.Create() as ViewResult;
-
-            // Provera da li je rezultat tipa ViewResult
             Assert.IsNotNull(result);
 
 
@@ -288,7 +351,7 @@ namespace TestProject2
         [TestMethod]
         public async Task IzvodjacCreate1Test()
         {
-            // Postavite vaš lažni kontekst
+            
             var myFakeContext = new DbContextOptionsBuilder<ApplicationDbContext>().UseInMemoryDatabase("VvsDb");
             var _dbContext = new ApplicationDbContext(myFakeContext.Options);
             //var fakeIzvodjac = new Izvodjac();
@@ -484,24 +547,24 @@ namespace TestProject2
             // Pozovite Edit metodu sa neispravnim modelom
             var result = await controller.Edit("existingd", existingIzvodjac);
 
-            // Provera da li je rezultat tipa ViewResult
+            // Provjera da li je rezultat tipa ViewResult
             Assert.IsInstanceOfType(result, typeof(ViewResult));
 
-            // Provera da li se vratio isti View sa neispravnim izvođačem
+            // Provjera da li se vratio isti View sa neispravnim izvođačem
             var viewResult = (ViewResult)result;
             Assert.AreEqual(existingIzvodjac, viewResult.Model);
         }
         [TestMethod]
         public async Task Delete_WithNullId_ReturnsNotFound()
         {
-            // Postavite vaš lažni kontekst
+            
             var myFakeContext = new DbContextOptionsBuilder<ApplicationDbContext>().UseInMemoryDatabase("VvsDb");
             var _dbContext = new ApplicationDbContext(myFakeContext.Options);
 
-            // Kreirajte kontroler sa lažnim kontekstom
+            
             var controller = new IzvodjacController(_dbContext);
 
-            // Pozovite Delete metodu sa null id
+            
             var result = await controller.Delete(null);
 
             // Provera da li je rezultat tipa NotFoundResult
@@ -543,10 +606,10 @@ namespace TestProject2
             // Pozovite Delete metodu sa postojećim id
             var result = await controller.Delete("existingId") as ViewResult;
 
-            // Provera da li je rezultat tipa ViewResult
+            // Provjera da li je rezultat tipa ViewResult
             Assert.IsNotNull(result);
 
-            // Provera da li se vratio izvođač kao model
+            // Provjera da li se vratio izvođač kao model
             Assert.IsInstanceOfType(result.Model, typeof(Izvodjac));
 
         }
@@ -568,39 +631,39 @@ namespace TestProject2
             // Pozovite DeleteConfirmed metodu sa postojećim id
             var result = await controller.DeleteConfirmed("existingI2d");
 
-            // Provera da li je rezultat tipa RedirectToActionResult
+            // Provjera da li je rezultat tipa RedirectToActionResult
             Assert.IsInstanceOfType(result, typeof(RedirectToActionResult));
 
-            // Provera da li se vratio na Index akciju
+            // Provjera da li se vratio na Index akciju
             var redirectToActionResult = (RedirectToActionResult)result;
             Assert.AreEqual("Index", redirectToActionResult.ActionName);
 
-            // Provera da li je izvođač uspešno uklonjen iz baze
+            // Provjera da li je izvođač uspešno uklonjen iz baze
             var deletedIzvodjac = await _dbContext.Izvodjaci.FindAsync("existingI2d");
             Assert.IsNull(deletedIzvodjac);
         }
         [TestMethod]
         public async Task Delete_WithValidId_ReturnsViewWithIzvodjac()
         {
-            // Postavite vaš lažni kontekst
+            
             var myFakeContext = new DbContextOptionsBuilder<ApplicationDbContext>().UseInMemoryDatabase("VvsDb");
             var _dbContext = new ApplicationDbContext(myFakeContext.Options);
 
-            // Dodajte izvođača u bazu podataka
+            
             var existingIzvodjac = new Izvodjac { Id = "existingId1111", UserName = "user123", Email = "user@example.com" };
             _dbContext.Izvodjaci.Add(existingIzvodjac);
             await _dbContext.SaveChangesAsync();
 
-            // Kreirajte kontroler sa lažnim kontekstom
+            
             var controller = new IzvodjacController(_dbContext);
 
-            // Pozovite Delete metodu sa postojećim id
+            
             var result = await controller.Delete("existingId1111") as ViewResult;
 
-            // Provera da li je rezultat tipa ViewResult
+           
             Assert.IsNotNull(result);
 
-            // Provera da li se vratio izvođač kao model
+            
             Assert.IsInstanceOfType(result.Model, typeof(Izvodjac));
 
 
@@ -993,7 +1056,7 @@ namespace TestProject2
             Assert.AreEqual("Index", result.ActionName);
         }
         [TestMethod]
-        public  Task Edit_ReturnsNotFound_WithNullId()
+        public  Task PorukaControllerTest()
         {
             // Arrange
             var myFakeContext = new DbContextOptionsBuilder<ApplicationDbContext>().UseInMemoryDatabase("VvsDb");
@@ -1031,60 +1094,77 @@ namespace TestProject2
             // Assert
             Assert.IsNotNull(result);
         }
-       /* [Fact]
-        public async Task Create_ValidModel_RedirectsToIndex()
+        /* [Fact]
+         public async Task Create_ValidModel_RedirectsToIndex()
+         {
+             // Arrange
+             var dbContextOptions = new DbContextOptionsBuilder<ApplicationDbContext>()
+                 .UseInMemoryDatabase(databaseName: "InMemoryDatabase")
+                 .Options;
+             var context = new ApplicationDbContext(dbContextOptions);
+             ObicniKorisnik korisnik = new ObicniKorisnik();
+             korisnik.Email = "b2@gmail.com";
+             korisnik.UserName = "u2sername1";
+             korisnik.Id = "68828";
+             var porukaManagerMock = new Mock<IPorukaManager>();
+
+             var controller = new PorukaController(context, userManager: null, porukaManagerMock.Object);
+
+             // Act
+             var result = await controller.Create(new Poruka { Id = 1651651651, sadrzaj = "Test", primalacId = "68828" }) as ViewResult;
+
+             // Assert
+             Assert.IsNull(result);
+             // Assert.AreEqual("Index", result.ActionName);
+         }
+
+         [Fact]
+         public async Task Create_InvalidModel_ReturnsViewWithModel()
+         {
+             // Arrange
+             var dbContextOptions = new DbContextOptionsBuilder<ApplicationDbContext>()
+                 .UseInMemoryDatabase(databaseName: "InMemoryDatabase")
+                 .Options;
+             var context = new ApplicationDbContext(dbContextOptions);
+
+             //  var userManager = Mock.Of<UserManager<IdentityUser>>();
+             var porukaManagerMock = new Mock<IPorukaManager>();
+
+             var controller = new PorukaController(context, userManager: null, porukaManagerMock.Object);
+             controller.ModelState.AddModelError("sadrzaj", "Required"); // Simulating model validation error
+
+             // Act
+             var result = await controller.Create(new Poruka { Id = 13115121, sadrzaj = null, primalacId = "6888" }) as ViewResult;
+
+             // Assert
+             Assert.IsNotNull(result);
+
+             // Provjera da li je primalacId postavljen u TempData
+             Assert.IsNotNull(controller.TempData);
+             Assert.AreEqual("6888", controller.TempData["primalacId"]);
+
+             // Provjera da li je primalacId postavljen u ViewData
+             Assert.IsNotNull(controller.ViewData);
+             Assert.AreEqual("6888", controller.ViewData["primalacId"]);
+         }
+
+        */
+
+        [TestMethod]
+        [DynamicData("izvodjaciJSON")]
+        public async Task CreateIzvodajc_ValidModelState_RedirectsToIndexJSON(Izvodjac izvodjac)
         {
-            // Arrange
-            var dbContextOptions = new DbContextOptionsBuilder<ApplicationDbContext>()
-                .UseInMemoryDatabase(databaseName: "InMemoryDatabase")
-                .Options;
-            var context = new ApplicationDbContext(dbContextOptions);
-            ObicniKorisnik korisnik = new ObicniKorisnik();
-            korisnik.Email = "b2@gmail.com";
-            korisnik.UserName = "u2sername1";
-            korisnik.Id = "68828";
-            var porukaManagerMock = new Mock<IPorukaManager>();
+            var myFakeContext = new DbContextOptionsBuilder<ApplicationDbContext>().UseInMemoryDatabase("VvsDb");
+            var _dbContext = new ApplicationDbContext(myFakeContext.Options);
+            var controller = new IzvodjacController(_dbContext);
 
-            var controller = new PorukaController(context, userManager: null, porukaManagerMock.Object);
+            var result = await controller.Create(izvodjac) as RedirectToActionResult;
 
-            // Act
-            var result = await controller.Create(new Poruka { Id = 1651651651, sadrzaj = "Test", primalacId = "68828" }) as ViewResult;
-
-            // Assert
-            Assert.IsNull(result);
-            // Assert.AreEqual("Index", result.ActionName);
-        }
-
-        [Fact]
-        public async Task Create_InvalidModel_ReturnsViewWithModel()
-        {
-            // Arrange
-            var dbContextOptions = new DbContextOptionsBuilder<ApplicationDbContext>()
-                .UseInMemoryDatabase(databaseName: "InMemoryDatabase")
-                .Options;
-            var context = new ApplicationDbContext(dbContextOptions);
-
-            //  var userManager = Mock.Of<UserManager<IdentityUser>>();
-            var porukaManagerMock = new Mock<IPorukaManager>();
-
-            var controller = new PorukaController(context, userManager: null, porukaManagerMock.Object);
-            controller.ModelState.AddModelError("sadrzaj", "Required"); // Simulating model validation error
-
-            // Act
-            var result = await controller.Create(new Poruka { Id = 13115121, sadrzaj = null, primalacId = "6888" }) as ViewResult;
-
-            // Assert
             Assert.IsNotNull(result);
-
-            // Provjera da li je primalacId postavljen u TempData
-            Assert.IsNotNull(controller.TempData);
-            Assert.AreEqual("6888", controller.TempData["primalacId"]);
-
-            // Provjera da li je primalacId postavljen u ViewData
-            Assert.IsNotNull(controller.ViewData);
-            Assert.AreEqual("6888", controller.ViewData["primalacId"]);
+            var check = _dbContext.Izvodjaci.Any(x => x.Id == izvodjac.Id);
+            Assert.IsTrue(check);
+            Assert.AreEqual("Index", result.ActionName);
         }
-       */
     }
 }
 
