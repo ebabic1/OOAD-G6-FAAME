@@ -7,8 +7,10 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Moq;
 using System;
 using System.Collections.Generic;
+using System.Security.Claims;
 using System.Threading.Tasks;
 
 namespace Testovi
@@ -38,8 +40,6 @@ namespace Testovi
             .Options;
 
             _dbContext = new ApplicationDbContext(options);
-            var httpContextAccessor = new HttpContextAccessor();
-            dvoranaManager = new DvoranaManager(_dbContext, httpContextAccessor);
 
             izvodjac = new Izvodjac
             {
@@ -59,7 +59,7 @@ namespace Testovi
                 nazivDvorane = "Koncretna dvorana 1",
                 adresaDvorane = "Antuna Branka Šimića 1",
                 brojSjedista = 1,
-                iznajmljivacId = "1",
+                iznajmljivacId = "2",
                 iznajmljivac = iznajmljivac
             };
             dvorana1 = new Dvorana
@@ -68,7 +68,7 @@ namespace Testovi
                 nazivDvorane = "Koncretna dvorana 5",
                 adresaDvorane = "Antuna Branka Šimića 5",
                 brojSjedista = 5,
-                iznajmljivacId = "1",
+                iznajmljivacId = "2",
                 iznajmljivac = iznajmljivac
             };
             rezervacija = new Rezervacija
@@ -108,6 +108,8 @@ namespace Testovi
         {
             await _dbContext.SaveChangesAsync();
             var dvoranaController = new DvoranaController(_dbContext);
+            var mockHttpContextAccessor = new Mock<IHttpContextAccessor>();
+            dvoranaManager = new DvoranaManager(_dbContext, mockHttpContextAccessor.Object);
             List<Dvorana> list = (List<Dvorana>) await dvoranaManager.GetAll();
             Assert.AreEqual(2, list.Count);
         }
@@ -117,7 +119,66 @@ namespace Testovi
         {
             await _dbContext.SaveChangesAsync();
             var dvoranaController = new DvoranaController(_dbContext);
+            var mockHttpContextAccessor = new Mock<IHttpContextAccessor>();
+            dvoranaManager = new DvoranaManager(_dbContext, mockHttpContextAccessor.Object);
             List<Dvorana> list = (List<Dvorana>)await dvoranaManager.GetUnreserved();
+            Assert.AreEqual(1, list.Count);
+        }
+
+        [TestMethod]
+        public async Task GetReservedByCurrentPerformer_Hall_ReturnsListOfHalls()
+        {
+            await _dbContext.SaveChangesAsync();
+            var dvoranaController = new DvoranaController(_dbContext);
+            var mockHttpContextAccessor = new Mock<IHttpContextAccessor>();
+            var context = new DefaultHttpContext
+            {
+                User = new ClaimsPrincipal(new ClaimsIdentity(new[]
+                {
+                    new Claim(ClaimTypes.NameIdentifier, "1"),
+                }))
+            };
+            mockHttpContextAccessor.Setup(x => x.HttpContext).Returns(context);
+            dvoranaManager = new DvoranaManager(_dbContext, mockHttpContextAccessor.Object);
+            List<Dvorana> list = (List<Dvorana>)await dvoranaManager.GetReservedByCurrentPerformer();
+            Assert.AreEqual(1, list.Count);
+        }
+
+        [TestMethod]
+        public async Task GetOwnedByCurrentRenter_Hall_ReturnsListOfHalls()
+        {
+            await _dbContext.SaveChangesAsync();
+            var dvoranaController = new DvoranaController(_dbContext);
+            var mockHttpContextAccessor = new Mock<IHttpContextAccessor>();
+            var context = new DefaultHttpContext
+            {
+                User = new ClaimsPrincipal(new ClaimsIdentity(new[]
+                {
+                    new Claim(ClaimTypes.NameIdentifier, "2"),
+                }))
+            };
+            mockHttpContextAccessor.Setup(x => x.HttpContext).Returns(context);
+            dvoranaManager = new DvoranaManager(_dbContext, mockHttpContextAccessor.Object);
+            List<Dvorana> list = (List<Dvorana>)await dvoranaManager.GetOwnedByCurrentRenter();
+            Assert.AreEqual(2, list.Count);
+        }
+
+        [TestMethod]
+        public async Task GetReservations_Hall_ReturnsListOfHalls()
+        {
+            await _dbContext.SaveChangesAsync();
+            var dvoranaController = new DvoranaController(_dbContext);
+            var mockHttpContextAccessor = new Mock<IHttpContextAccessor>();
+            var context = new DefaultHttpContext
+            {
+                User = new ClaimsPrincipal(new ClaimsIdentity(new[]
+                {
+                    new Claim(ClaimTypes.NameIdentifier, "2"),
+                }))
+            };
+            mockHttpContextAccessor.Setup(x => x.HttpContext).Returns(context);
+            dvoranaManager = new DvoranaManager(_dbContext, mockHttpContextAccessor.Object);
+            List<RezervacijaDvorane> list = (List<RezervacijaDvorane>)await dvoranaManager.GetReservations();
             Assert.AreEqual(1, list.Count);
         }
 
