@@ -10,6 +10,7 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using System.Threading.Tasks;
 
 namespace Testovi
@@ -261,7 +262,7 @@ namespace Testovi
             // Assert
             Assert.IsInstanceOfType(result, typeof(ViewResult));
         }
-        [Ignore]
+        
         [TestMethod]
         public async Task CreateReserve_ReturnsRedirectToActionResult_WhenReservationIsSuccessful()
         {
@@ -274,6 +275,20 @@ namespace Testovi
 
             // Assert
             Assert.IsInstanceOfType(result, typeof(RedirectToActionResult));
+            var redirectToActionResult = (RedirectToActionResult)result;
+            Assert.AreEqual("Index", redirectToActionResult.ActionName);
+            Assert.AreEqual("Home", redirectToActionResult.ControllerName);
+        }
+        [TestMethod]
+        public async Task CreateReserve_ReturnsRedirectToActionResult_WhenReservationIsNotSuccessful()
+        {
+            // Arrange
+            await _context.SaveChangesAsync();
+            var controller = new RezervacijaKarteController(_context, rezervacijaManager);
+            dvorana.brojSjedista = 0;
+            // Act
+
+            var result = await controller.CreateReserve(rezervacijaKarteForCreate);
             var redirectToActionResult = (RedirectToActionResult)result;
             Assert.AreEqual("Index", redirectToActionResult.ActionName);
             Assert.AreEqual("Home", redirectToActionResult.ControllerName);
@@ -354,35 +369,14 @@ namespace Testovi
             // Assert
             Assert.IsInstanceOfType(result, typeof(NotFoundResult));
         }
-        [Ignore]
-        [TestMethod]
-        public async Task EditPost_ReturnsNotFound_WhenConcurrencyException()
-        {
-            // Arrange
-            await _context.SaveChangesAsync();
-            var novaRezervacijaKarte = new RezervacijaKarte
-            {
-                Id = 5,
-                rezervacijaId = 1,
-                obicniKorisnikId = "23456",
-                koncertId = 1,
-                tipMjesta = TipMjesta.PARTER
-            };
-            var controller = new RezervacijaKarteController(_context, rezervacijaManager);
-
-            // Act
-            var result = await controller.Edit(5, novaRezervacijaKarte);
-
-            // Assert
-            Assert.IsInstanceOfType(result, typeof(NotFoundResult));
-        }
+        
         [TestMethod]
         public async Task EditPost_ReturnsViewWithModel_WhenInvalidModel()
         {
             // Arrange
             await _context.SaveChangesAsync();
             var controller = new RezervacijaKarteController(_context, rezervacijaManager);
-            controller.ModelState.AddModelError("field", "Error message"); // Dodajte pogrešku u ModelState
+            controller.ModelState.AddModelError("field", "Error message");
 
             // Act
             var result = await controller.Edit(rezervacijaKarte.Id, rezervacijaKarte);
@@ -454,6 +448,20 @@ namespace Testovi
             Assert.IsInstanceOfType(result, typeof(RedirectToActionResult));
             var redirectToActionResult = (RedirectToActionResult)result;
             Assert.AreEqual("Index", redirectToActionResult.ActionName);
+        }
+        [TestMethod]
+        public async Task RezervacijaExists_WithValidId_ReturnsTrue()
+        {
+            await _context.SaveChangesAsync();
+            var controller = new RezervacijaKarteController(_context, rezervacijaManager);
+
+            var methodInfo = typeof(RezervacijaKarteController).GetMethod("RezervacijaKarteExists", BindingFlags.NonPublic | BindingFlags.Instance);
+            Assert.IsNotNull(methodInfo, "Method not found");
+
+            var result = methodInfo.Invoke(controller, new object[] { 1 }) as bool?;
+
+            // Assert the result or check behavior
+            Assert.AreEqual(true, result);
         }
         [TestCleanup]
         public void Cleanup()

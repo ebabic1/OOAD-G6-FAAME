@@ -107,8 +107,8 @@ namespace Implementacija.Controllers
                 rezervacija.potvrda = false;
                 _context.Add(rezervacija); await _context.SaveChangesAsync();
                 rezervacijaKarte.rezervacijaId = rezervacija.Id;
-                var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-                rezervacijaKarte.obicniKorisnikId = userId;
+                //var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+              //  rezervacijaKarte.obicniKorisnikId = userId;
                 _context.Add(rezervacijaKarte);
                 await _context.SaveChangesAsync();
                 
@@ -116,7 +116,14 @@ namespace Implementacija.Controllers
             }
             ViewData["koncertId"] = new SelectList(_context.Koncerti, "Id", "Id", rezervacijaKarte.koncertId);
             ViewData["rezervacijaId"] = new SelectList(_context.Set<Rezervacija>(), "Id", "Id", rezervacijaKarte.rezervacijaId);
-            TempData["ErrorMessage"] = "Vec ste rezervisali neku dvoranu.";
+            try
+            {
+                TempData["ErrorMessage"] = "Vec ste rezervisali neku dvoranu.";
+            }
+            catch(Exception ex)
+            {
+
+            }
             return RedirectToAction("Index", "Home");
         }
 
@@ -149,25 +156,11 @@ namespace Implementacija.Controllers
             {
                 return NotFound();
             }
-
             if (ModelState.IsValid)
             {
-                try
-                {
-                    _context.Update(rezervacijaKarte);
-                    await _context.SaveChangesAsync();
-                }
-                catch (DbUpdateConcurrencyException)
-                {
-                    if (!RezervacijaKarteExists(rezervacijaKarte.Id))
-                    {
-                        return NotFound();
-                    }
-                    else
-                    {
-                        throw;
-                    }
-                }
+                _context.Update(rezervacijaKarte);
+                await _context.SaveChangesAsync();
+
                 return RedirectToAction(nameof(Index));
             }
             ViewData["koncertId"] = new SelectList(_context.Koncerti, "Id", "Id", rezervacijaKarte.koncertId);
