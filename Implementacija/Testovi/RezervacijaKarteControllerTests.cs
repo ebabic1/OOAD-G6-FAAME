@@ -74,7 +74,9 @@ namespace Testovi
             {
                 Id = 1,
                 rezervacijaId = 1,
+                rezervacija = rezervacija,
                 obicniKorisnikId = "23456",
+                obicniKorisnik = obicniKorisnik,
                 koncertId = 1,
                 tipMjesta = TipMjesta.PARTER
             };

@@ -20,6 +20,7 @@ namespace Testovi
         private ApplicationDbContext _context;
         private Izvodjac izvodjac;
         private Koncert koncert;
+        private RegistracijaKoncerta registracijaKoncerta;
         [TestInitialize]
         public void Setup()
         {
@@ -45,6 +46,15 @@ namespace Testovi
                 zanr = Zanr.HIPHOP,
                 datum = DateTime.Now,
                 izvodjacId = "12345"
+            };
+            registracijaKoncerta = new RegistracijaKoncerta
+            {
+                Id = 1,
+                naziv = "noviKoncert",
+                zanr = Zanr.HIPHOP,
+                datum = DateTime.Now,
+                izvodjacId = "12345",
+                izvodjac = izvodjac
             };
             _context.Add(izvodjac);
         }
