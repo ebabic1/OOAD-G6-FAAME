@@ -7,10 +7,13 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
+using System.Xml.Linq;
 
 namespace Testovi
 {
@@ -21,6 +24,7 @@ namespace Testovi
         private Izvodjac izvodjac;
         private Koncert koncert;
         private RegistracijaKoncerta registracijaKoncerta;
+
         [TestInitialize]
         public void Setup()
         {
@@ -58,7 +62,75 @@ namespace Testovi
             };
             _context.Add(izvodjac);
         }
+        public static IEnumerable<object[]> ReadJson()
+        {
+            var filePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "..\\..\\..\\RegistracijaKoncertaTestData.json");
+            var json = File.ReadAllText(filePath);
+            var jobject = JObject.Parse(json);
+            var koncerti = jobject["koncert"]?.ToObject<IEnumerable<Koncert>>();
 
+            foreach (var koncert in koncerti ?? Enumerable.Empty<Koncert>())
+            {
+                yield return new[] { koncert };
+            }
+        }
+        static IEnumerable<object[]> KoncertiJSON
+        {
+            get
+            {
+                return ReadJson();
+            }
+        }
+        public static IEnumerable<object[]> ReadXML()
+        {
+            var filePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "..\\..\\..\\RegistracijaKoncertaTestData.xml");
+            var xml = XDocument.Load(filePath);
+
+            var koncerti = xml.Descendants("Koncert")
+                .Select(koncert => new object[]
+                {
+            int.Parse(koncert.Element("Id")?.Value),
+            koncert.Element("Naziv")?.Value,
+            koncert.Element("IzvodjacID")?.Value
+                });
+
+            return koncerti;
+        }
+        static IEnumerable<object[]> KoncertiXML
+        {
+            get
+            {
+                return ReadXML();
+            }
+        }
+        [TestMethod]
+        [DynamicData("KoncertiJSON")]
+        public async Task Register_ValidKoncert_RedirectsToConfirmation_JSON(Koncert koncert)
+        {
+            await _context.SaveChangesAsync();
+            var controller = new RegistracijaKoncertaController(_context);
+
+            var result = await controller.Register(koncert) as RedirectToActionResult;
+
+            Assert.IsNotNull(result);
+            var check = _context.Koncerti.Any(x => x.Id == koncert.Id);
+            Assert.IsTrue(check);
+            Assert.AreEqual("Confirmation", result.ActionName);
+        }
+        [TestMethod]
+        [DynamicData("KoncertiXML")]
+        public async Task Register_ValidKoncert_RedirectsToConfirmation_XML(int Id, string Naziv, string IzvodjacID)
+        {
+            await _context.SaveChangesAsync();
+            var controller = new RegistracijaKoncertaController(_context);
+            var koncert = new Koncert { Id = Id, naziv = Naziv, izvodjacId = IzvodjacID };
+            var result = await controller.Register(koncert) as RedirectToActionResult;
+
+            Assert.IsNotNull(result);
+            var check = _context.Koncerti.Any(x => x.Id == koncert.Id);
+            Assert.IsTrue(check);
+            Assert.AreEqual("Confirmation", result.ActionName);
+        }
         [TestMethod]
         public async Task Register_ValidKoncert_RedirectsToConfirmation()
         {
@@ -114,11 +186,12 @@ namespace Testovi
             {
                 _context.Izvodjaci.Remove(izvodjacToDelete);
             }
-            var koncertToDelete = _context.Koncerti.FirstOrDefault(k => k.Id == 1);
+            var koncertToDelete = _context.Koncerti.FirstOrDefault(i => i.Id == 1);
             if (koncertToDelete != null)
             {
                 _context.Koncerti.Remove(koncertToDelete);
             }
+
             _context.SaveChanges();
         }
     }
