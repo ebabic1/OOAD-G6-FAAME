@@ -7,10 +7,12 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Moq;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using System.Security.Claims;
 using System.Threading.Tasks;
 
 namespace Testovi
@@ -40,9 +42,14 @@ namespace Testovi
                 .UseInMemoryDatabase(databaseName: "TestDatabase")
                 .Options;
 
+
+            var mockHttpContextAccessor = new Mock<IHttpContextAccessor>();
+            var context = new DefaultHttpContext();
+            var fakeUserId = "abcd";
+            context.Request.Headers["User-ID"] = fakeUserId;
+            mockHttpContextAccessor.Setup(_ => _.HttpContext).Returns(context);
             _context = new ApplicationDbContext(options);
-            var httpContextAccessor = new HttpContextAccessor();
-            var porukaManager = new PorukaManager(_context, httpContextAccessor);
+            var porukaManager = new PorukaManager(_context, mockHttpContextAccessor.Object);
             rezervacijaManager = new RezervacijaManager(_context, porukaManager);
             izvodjac = new Izvodjac
             {
@@ -264,7 +271,6 @@ namespace Testovi
             // Assert
             Assert.IsInstanceOfType(result, typeof(ViewResult));
         }
-        
         [TestMethod]
         public async Task CreateReserve_ReturnsRedirectToActionResult_WhenReservationIsSuccessful()
         {
@@ -273,13 +279,26 @@ namespace Testovi
             var controller = new RezervacijaKarteController(_context, rezervacijaManager);
 
             // Act
-            var result = await controller.CreateReserve(rezervacijaKarteForCreate);
+            controller.ControllerContext = new ControllerContext
+            {
+                HttpContext = new DefaultHttpContext
+                {
+                    User = new ClaimsPrincipal(new ClaimsIdentity(new Claim[]
+        {
+                        new Claim(ClaimTypes.NameIdentifier, "12345")
+        }, "mock"))
+                }
+            };
+            // Act
+            var result = await controller.CreateReserve(rezervacijaKarteForCreate) as RedirectToActionResult;
 
             // Assert
-            Assert.IsInstanceOfType(result, typeof(RedirectToActionResult));
-            var redirectToActionResult = (RedirectToActionResult)result;
-            Assert.AreEqual("Index", redirectToActionResult.ActionName);
-            Assert.AreEqual("Home", redirectToActionResult.ControllerName);
+            Assert.IsNotNull(result);
+            Assert.AreEqual("Index", result.ActionName);
+            Assert.AreEqual("Home", result.ControllerName);
+
+            var rezervacijaUser = _context.RezervacijaDvorana.FirstOrDefault(rd => rd.izvodjacId == "12345");
+            Assert.AreEqual(rezervacijaUser.izvodjacId, "12345");
         }
         [TestMethod]
         public async Task CreateReserve_ReturnsRedirectToActionResult_WhenReservationIsNotSuccessful()

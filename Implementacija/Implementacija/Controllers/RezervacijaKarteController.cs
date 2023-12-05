@@ -107,8 +107,8 @@ namespace Implementacija.Controllers
                 rezervacija.potvrda = false;
                 _context.Add(rezervacija); await _context.SaveChangesAsync();
                 rezervacijaKarte.rezervacijaId = rezervacija.Id;
-                //var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-              //  rezervacijaKarte.obicniKorisnikId = userId;
+                var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+                rezervacijaKarte.obicniKorisnikId = userId;
                 _context.Add(rezervacijaKarte);
                 await _context.SaveChangesAsync();
                 
