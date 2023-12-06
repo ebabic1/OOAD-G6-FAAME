@@ -17,7 +17,7 @@ namespace Implementacija.Services
         public async Task<IEnumerable<Koncert>> GetAll() => await _db.Koncerti.ToListAsync();
         public IEnumerable<Koncert> GetRecommended()
         {
-            return _db.Koncerti.OrderBy(k => k.zanr);
+            return _db.Koncerti.OrderBy(k => k.zanr).ToList();
         }
         public int GetRemainingSeats(Koncert koncert)
         {
