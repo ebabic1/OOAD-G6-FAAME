@@ -92,8 +92,8 @@ namespace Implementacija.Controllers
                 return NotFound();
             }
 
-            var poruka = await _context.Poruke.FindAsync(id);
-            if (poruka == null)
+            var poruka1 = await _context.Poruke.FindAsync(id);
+            if (poruka1 == null)
             {
                 return NotFound();
             }
