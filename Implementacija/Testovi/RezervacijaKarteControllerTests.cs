@@ -31,6 +31,7 @@ namespace Testovi
         private Iznajmljivac iznajmljivac;
         private Dvorana dvorana;
         private RezervacijaDvorane rezervacijaDvorane;
+        private KartaManager kartaManager;
         [TestInitialize]
         public void Setup()
         {
@@ -51,6 +52,7 @@ namespace Testovi
             _context = new ApplicationDbContext(options);
             var porukaManager = new PorukaManager(_context, mockHttpContextAccessor.Object);
             rezervacijaManager = new RezervacijaManager(_context, porukaManager);
+            kartaManager = new KartaManager(_context);
             izvodjac = new Izvodjac
             {
                 Id = "12345",
@@ -483,6 +485,60 @@ namespace Testovi
 
             // Assert the result or check behavior
             Assert.AreEqual(true, result);
+        }
+        [TestMethod]
+        public async Task KartaManager_GetAll_ReturnsAllReservations()
+        {
+            // Arrange
+            await _context.SaveChangesAsync();
+
+            // Act
+            var result = await kartaManager.GetAll();
+
+            // Assert
+            Assert.IsNotNull(result);
+            Assert.IsInstanceOfType(result, typeof(IEnumerable<RezervacijaKarte>));
+            CollectionAssert.Contains(result.ToList(), rezervacijaKarte);
+        }
+        [TestMethod]
+        public async Task KartaManager_GetOwned_ReturnsOwnedReservations()
+        {
+            // Arrange
+            await _context.SaveChangesAsync();
+            // Act
+            var result = kartaManager.GetOwned("23456");
+
+            // Assert
+            Assert.IsNotNull(result);
+            Assert.IsInstanceOfType(result, typeof(IEnumerable<RezervacijaKarte>));
+            Assert.AreEqual(1, result.Count()); 
+        }
+        [TestMethod]
+        public async Task KartaManager_GetName_ReturnsKoncertName()
+        {
+            // Arrange
+            await _context.SaveChangesAsync();
+
+            // Act
+            var result = kartaManager.GetName(1);
+
+            // Assert
+            Assert.IsNotNull(result);
+            Assert.IsInstanceOfType(result, typeof(string));
+            Assert.AreEqual("noviKoncert", result);
+        }
+        [TestMethod]
+        public async Task KartaManager_GetGuy_ReturnsIzvodjacId()
+        {
+            // Arrange
+            await _context.SaveChangesAsync();
+
+            // Act
+            var result = kartaManager.GetGuy(1);
+
+            // Assert
+            Assert.IsNotNull(result);
+            Assert.IsInstanceOfType(result, typeof(string));
         }
         [TestCleanup]
         public void Cleanup()
