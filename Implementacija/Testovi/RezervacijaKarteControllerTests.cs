@@ -431,7 +431,7 @@ namespace Testovi
             var controller = new RezervacijaKarteController(_context, rezervacijaManager);
 
             // Act
-            var result = await controller.Delete(1111); // Pretpostavljamo da nema rezervacije s ID-om 1111
+            var result = await controller.Delete(1111); // Pretpostavljamo da nema rezervacije s ID-em 1111
 
             // Assert
             Assert.IsInstanceOfType(result, typeof(NotFoundResult));

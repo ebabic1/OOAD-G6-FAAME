@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 
 namespace Implementacija.Services
 {
-    public interface ITicketManager 
+    public interface IKartaManager 
     {
         public Task<IEnumerable<RezervacijaKarte>> GetAll();
         public IEnumerable<RezervacijaKarte> GetOwned(string currentID);
