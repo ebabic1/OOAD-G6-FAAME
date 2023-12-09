@@ -42,8 +42,6 @@ namespace Testovi
             var options = new DbContextOptionsBuilder<ApplicationDbContext>()
                 .UseInMemoryDatabase(databaseName: "TestDatabase")
                 .Options;
-
-
             var mockHttpContextAccessor = new Mock<IHttpContextAccessor>();
             var context = new DefaultHttpContext();
             var fakeUserId = "abcd";
@@ -108,8 +106,8 @@ namespace Testovi
                 Id = 1,
                 nazivDvorane = "Naziv nove dvorane",
                 adresaDvorane = "Adresa nove dvorane",
-                brojSjedista = 100, // Postavite željeni broj sjedala
-                iznajmljivacId = "34567" // Postavite ID iznajmljivača, ovisno o vašoj implementaciji
+                brojSjedista = 100, 
+                iznajmljivacId = "34567" 
             };
             rezervacijaDvorane = new RezervacijaDvorane
             {
@@ -124,10 +122,13 @@ namespace Testovi
         [TestMethod]
         public async Task Index_ReturnsViewWithModel()
         {
+            // Arrange
             await _context.SaveChangesAsync();
             var controller = new RezervacijaKarteController(_context, rezervacijaManager);
+
             // Act
             var result = await controller.Index();
+
             // Assert
             Assert.IsInstanceOfType(result, typeof(ViewResult));
             var viewResult = (ViewResult)result;
@@ -139,13 +140,11 @@ namespace Testovi
         [TestMethod]
         public async Task Details_ReturnsNotFound_WhenIdIsNull()
         {
-            await _context.SaveChangesAsync();
             // Arrange
+            await _context.SaveChangesAsync();
             var controller = new RezervacijaKarteController(_context, rezervacijaManager);
-
             // Act
             var result = await controller.Details(null);
-
             // Assert
             Assert.IsInstanceOfType(result, typeof(NotFoundResult));
         }
@@ -153,8 +152,8 @@ namespace Testovi
         [TestMethod]
         public async Task Details_ReturnsNotFound_WhenIdDoesNotExist()
         {
-            await _context.SaveChangesAsync();
             // Arrange
+            await _context.SaveChangesAsync();
             var controller = new RezervacijaKarteController(_context, rezervacijaManager);
 
             // Act
@@ -167,9 +166,8 @@ namespace Testovi
         [TestMethod]
         public async Task Details_ReturnsViewResult_WhenIdExists()
         {
-            await _context.SaveChangesAsync();
             // Arrange
-
+            await _context.SaveChangesAsync();
             var controller = new RezervacijaKarteController(_context, rezervacijaManager);
 
             // Act
@@ -185,8 +183,8 @@ namespace Testovi
         [TestMethod]
         public async Task Reserve_ReturnsNotFound_WhenIdIsNull()
         {
-            await _context.SaveChangesAsync();
             // Arrange
+            await _context.SaveChangesAsync();
             var controller = new RezervacijaKarteController(_context, rezervacijaManager);
 
             // Act
@@ -199,8 +197,8 @@ namespace Testovi
         [TestMethod]
         public async Task Reserve_ReturnsNotFound_WhenKoncertDoesNotExist()
         {
-            await _context.SaveChangesAsync();
             // Arrange
+            await _context.SaveChangesAsync();
             var controller = new RezervacijaKarteController(_context, rezervacijaManager);
 
             // Act
@@ -215,7 +213,6 @@ namespace Testovi
         {
             // Arrange
             await _context.SaveChangesAsync();
-
             var controller = new RezervacijaKarteController(_context, rezervacijaManager);
 
             // Act
@@ -231,8 +228,8 @@ namespace Testovi
         [TestMethod]
         public async Task Create_ReturnsViewResult()
         {
-            await _context.SaveChangesAsync();
             // Arrange
+            await _context.SaveChangesAsync();
             var controller = new RezervacijaKarteController(_context, rezervacijaManager);
 
             // Act
@@ -261,7 +258,6 @@ namespace Testovi
         [TestMethod]
         public async Task Create_ReturnsViewResult_WhenModelStateIsInvalid()
         {
-
             // Arrange
             await _context.SaveChangesAsync();
             var controller = new RezervacijaKarteController(_context, rezervacijaManager);
@@ -279,8 +275,6 @@ namespace Testovi
             // Arrange
             await _context.SaveChangesAsync();
             var controller = new RezervacijaKarteController(_context, rezervacijaManager);
-
-            // Act
             controller.ControllerContext = new ControllerContext
             {
                 HttpContext = new DefaultHttpContext
@@ -291,6 +285,7 @@ namespace Testovi
         }, "mock"))
                 }
             };
+
             // Act
             var result = await controller.CreateReserve(rezervacijaKarteForCreate) as RedirectToActionResult;
 
@@ -298,27 +293,29 @@ namespace Testovi
             Assert.IsNotNull(result);
             Assert.AreEqual("Index", result.ActionName);
             Assert.AreEqual("Home", result.ControllerName);
-
             var rezervacijaUser = _context.RezervacijaDvorana.FirstOrDefault(rd => rd.izvodjacId == "12345");
             Assert.AreEqual(rezervacijaUser.izvodjacId, "12345");
         }
         [TestMethod]
-        public async Task CreateReserve_ReturnsRedirectToActionResult_WhenReservationIsNotSuccessful()
+        public async Task CreateReserve_ReturnsRedirectToActionResult_WhenNoRemainingSeats()
         {
             // Arrange
             await _context.SaveChangesAsync();
             var controller = new RezervacijaKarteController(_context, rezervacijaManager);
             dvorana.brojSjedista = 0;
-            // Act
 
+            // Act
             var result = await controller.CreateReserve(rezervacijaKarteForCreate);
             var redirectToActionResult = (RedirectToActionResult)result;
+
+            // Assert
             Assert.AreEqual("Index", redirectToActionResult.ActionName);
             Assert.AreEqual("Home", redirectToActionResult.ControllerName);
         }
         [TestMethod]
         public async Task CreateReserve_ReturnsRedirectToActionResult_WhenModelStateIsInvalid()
         {
+            // Arrange
             await _context.SaveChangesAsync();
             var controller = new RezervacijaKarteController(_context, rezervacijaManager);
             controller.ModelState.AddModelError("FieldName", "Error Message");
@@ -326,6 +323,7 @@ namespace Testovi
             // Act
             var result = await controller.CreateReserve(rezervacijaKarteForCreate);
 
+            // Assert
             var redirectToActionResult = (RedirectToActionResult)result;
             Assert.AreEqual("Index", redirectToActionResult.ActionName);
             Assert.AreEqual("Home", redirectToActionResult.ControllerName);
@@ -428,8 +426,8 @@ namespace Testovi
         [TestMethod]
         public async Task Delete_ReturnsNotFound_WhenIdIsNull()
         {
-            await _context.SaveChangesAsync();
             // Arrange
+            await _context.SaveChangesAsync();
             var controller = new RezervacijaKarteController(_context, rezervacijaManager);
 
             // Act
@@ -442,12 +440,12 @@ namespace Testovi
         [TestMethod]
         public async Task Delete_ReturnsNotFound_WhenReservationNotFound()
         {
-            await _context.SaveChangesAsync();
             // Arrange
+            await _context.SaveChangesAsync();
             var controller = new RezervacijaKarteController(_context, rezervacijaManager);
 
             // Act
-            var result = await controller.Delete(1111); // Pretpostavljamo da nema rezervacije s ID-em 1111
+            var result = await controller.Delete(1111); // Nema rezervacije s ID-em 1111
 
             // Assert
             Assert.IsInstanceOfType(result, typeof(NotFoundResult));
@@ -489,15 +487,20 @@ namespace Testovi
         [TestMethod]
         public async Task RezervacijaExists_WithValidId_ReturnsTrue()
         {
+            // Testiranje privatne metode
+
+            // Arrange
             await _context.SaveChangesAsync();
             var controller = new RezervacijaKarteController(_context, rezervacijaManager);
-
             var methodInfo = typeof(RezervacijaKarteController).GetMethod("RezervacijaKarteExists", BindingFlags.NonPublic | BindingFlags.Instance);
+            
+            // Assert
             Assert.IsNotNull(methodInfo, "Method not found");
 
+            // Act
             var result = methodInfo.Invoke(controller, new object[] { 1 }) as bool?;
 
-            // Assert the result or check behavior
+            // Assert
             Assert.AreEqual(true, result);
         }
         [TestMethod]
@@ -519,6 +522,7 @@ namespace Testovi
         {
             // Arrange
             await _context.SaveChangesAsync();
+
             // Act
             var result = kartaManager.GetOwned("23456");
 

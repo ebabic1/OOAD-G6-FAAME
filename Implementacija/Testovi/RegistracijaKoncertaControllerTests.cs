@@ -107,11 +107,14 @@ namespace Testovi
         [DynamicData("KoncertiJSON")]
         public async Task Register_ValidKoncert_RedirectsToConfirmation_JSON(Koncert koncert)
         {
+            // Arrange
             await _context.SaveChangesAsync();
             var controller = new RegistracijaKoncertaController(_context);
 
+            // Act
             var result = await controller.Register(koncert) as RedirectToActionResult;
 
+            // Assert
             Assert.IsNotNull(result);
             var check = _context.Koncerti.Any(x => x.Id == koncert.Id);
             Assert.IsTrue(check);
@@ -121,11 +124,15 @@ namespace Testovi
         [DynamicData("KoncertiXML")]
         public async Task Register_ValidKoncert_RedirectsToConfirmation_XML(int Id, string Naziv, string IzvodjacID)
         {
+            // Arrange
             await _context.SaveChangesAsync();
             var controller = new RegistracijaKoncertaController(_context);
             var koncert = new Koncert { Id = Id, naziv = Naziv, izvodjacId = IzvodjacID };
+
+            // Act
             var result = await controller.Register(koncert) as RedirectToActionResult;
 
+            // Assert
             Assert.IsNotNull(result);
             var check = _context.Koncerti.Any(x => x.Id == koncert.Id);
             Assert.IsTrue(check);
@@ -134,11 +141,14 @@ namespace Testovi
         [TestMethod]
         public async Task Register_ValidKoncert_RedirectsToConfirmation()
         {
+            // Arrange
             await _context.SaveChangesAsync();
             var controller = new RegistracijaKoncertaController(_context);
 
+            // Act
             var result = await controller.Register(koncert) as RedirectToActionResult;
 
+            // Assert
             Assert.IsNotNull(result);
             Assert.AreEqual("Confirmation", result.ActionName);
         }
@@ -146,11 +156,14 @@ namespace Testovi
         [TestMethod]
         public async Task Register_ValidKoncert_SavesToDatabase()
         {
+            // Arrange
             await _context.SaveChangesAsync();
             var controller = new RegistracijaKoncertaController(_context);
 
+            // Act
             await controller.Register(koncert);
 
+            // Assert
             var savedKoncert = _context.Koncerti.FirstOrDefault(k => k.Id == 1);
             Assert.IsNotNull(savedKoncert);
             Assert.AreEqual(Zanr.HIPHOP, savedKoncert.zanr);
@@ -159,20 +172,28 @@ namespace Testovi
         [TestMethod]
         public async Task Confirmation_ReturnsView()
         {
+            // Arrange
             await _context.SaveChangesAsync();
             var controller = new RegistracijaKoncertaController(_context);
 
+            // Act
             var result = controller.Confirmation() as ViewResult;
+            
+            // Assert
             Assert.IsNotNull(result);
             Assert.IsInstanceOfType(result, typeof(ViewResult));
         }
         [TestMethod]
         public async Task Register_ReturnsView()
         {
+            // Arrange
             await _context.SaveChangesAsync();
             var controller = new RegistracijaKoncertaController(_context);
 
+            // Act
             var result = controller.Register() as ViewResult;
+
+            // Assert
             Assert.IsNotNull(result);
             Assert.IsInstanceOfType(result, typeof(ViewResult));
         }
