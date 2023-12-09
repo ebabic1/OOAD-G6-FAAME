@@ -118,7 +118,7 @@ namespace Implementacija.Controllers
                 if(remainingSeats <= 0) TempData["ErrorMessage"] = "Nema slobodnih mjesta";
                 else TempData["ErrorMessage"] = "Podaci nisu validni";
             }
-            catch(Exception ex)
+            catch(Exception)
             {
 
             }

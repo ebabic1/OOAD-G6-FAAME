@@ -316,6 +316,20 @@ namespace Testovi
             Assert.AreEqual("Index", redirectToActionResult.ActionName);
             Assert.AreEqual("Home", redirectToActionResult.ControllerName);
         }
+        [TestMethod]
+        public async Task CreateReserve_ReturnsRedirectToActionResult_WhenModelStateIsInvalid()
+        {
+            await _context.SaveChangesAsync();
+            var controller = new RezervacijaKarteController(_context, rezervacijaManager);
+            controller.ModelState.AddModelError("FieldName", "Error Message");
+
+            // Act
+            var result = await controller.CreateReserve(rezervacijaKarteForCreate);
+
+            var redirectToActionResult = (RedirectToActionResult)result;
+            Assert.AreEqual("Index", redirectToActionResult.ActionName);
+            Assert.AreEqual("Home", redirectToActionResult.ControllerName);
+        }
 
         [TestMethod]
         public async Task Edit_ReturnsViewWithModel_WhenIdIsNotNull()
