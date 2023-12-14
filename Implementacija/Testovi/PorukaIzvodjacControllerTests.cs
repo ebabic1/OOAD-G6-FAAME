@@ -189,6 +189,8 @@ namespace TestProject2
             korisnik.UserName = "username1";
             korisnik.Id = "6";
             _dbContext.Add(korisnik);
+            PorukaVeza porukaVeza = new PorukaVeza();
+            porukaVeza.Id=6;
             Poruka poruka = new Poruka();
             poruka.primalacId = "6";
             poruka.Id = 5;
@@ -215,7 +217,9 @@ namespace TestProject2
             // Add any necessary setup for your _dbContext here
 
             var controller = new PorukaController(_dbContext, userManager: null, porukaManagerMock.Object);
-
+            ErrorViewModel e = new ErrorViewModel();
+            e.RequestId = "dajd";
+            Assert.IsTrue(e.ShowRequestId);
             // Act
             var result = controller.Create();
             var viewResult = result as ViewResult;
@@ -232,6 +236,8 @@ namespace TestProject2
             var _dbContext = new ApplicationDbContext(myFakeContext.Options);
             var porukaManagerMock = new Mock<IPorukaManager>();
             ObicniKorisnik korisnik = new ObicniKorisnik();
+            RezervacijaManager r = new RezervacijaManager(_dbContext, porukaManagerMock.Object);
+            Assert.IsFalse(r.HasReservation("1"));
             korisnik.Email = "75@gmail.com";
             korisnik.UserName = "user123";
             korisnik.Id = "17";
