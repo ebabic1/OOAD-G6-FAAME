@@ -179,10 +179,15 @@ namespace Testovi
             var controller = new IznajmljivacController(_dbContext);
 
             var result1 = await controller.Edit("5") as NotFoundResult;
-            var result2 = await controller.Edit(null) as NotFoundResult;
             Assert.IsNotNull(result1);
-            Assert.IsNotNull(result2);
             Assert.AreEqual(404, result1.StatusCode);
+        }
+        [TestMethod]
+        public async Task Edit_InvalidIdNull_ReturnsNotFound()
+        {
+            var controller = new IznajmljivacController(_dbContext);
+            var result2 = await controller.Edit(null) as NotFoundResult;
+            Assert.IsNotNull(result2);
             Assert.AreEqual(404, result2.StatusCode);
         }
         [TestMethod]
@@ -275,8 +280,6 @@ namespace Testovi
             Assert.IsNotNull(result);
             Assert.AreEqual(404, result.StatusCode);
         }
-        // This test verifies that the catch block handles DbUpdateConcurrencyException appropriately
-       
-
+        
     }
 }

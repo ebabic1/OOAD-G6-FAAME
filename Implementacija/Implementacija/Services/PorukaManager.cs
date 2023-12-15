@@ -23,7 +23,8 @@ namespace Implementacija.Services
         }
         public string GetUserId()
         {
-            return _contextAccessor.HttpContext.User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            var x = _contextAccessor.HttpContext.User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            return x;
         }
         public IEnumerable<Poruka> GetAll()
         {
