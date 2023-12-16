@@ -38,11 +38,18 @@ namespace Testovi
                 .UseInMemoryDatabase(databaseName: "TestDatabase")
                 .UseInternalServiceProvider(serviceProvider)
                 .Options;
+            var mockHttpContext = new Mock<HttpContext>();
             var mockHttpContextAccessor = new Mock<IHttpContextAccessor>();
-            var context = new DefaultHttpContext();
-            var fakeUserId = "abcd";
-            context.Request.Headers["User-ID"] = fakeUserId;
-            mockHttpContextAccessor.Setup(_ => _.HttpContext).Returns(context);
+            var claims = new List<Claim>
+            {
+                // Kao da je ovaj korisnik ulogovan
+                new Claim(ClaimTypes.NameIdentifier, "999")
+            };
+            var identity = new ClaimsIdentity(claims, "TestAuth");
+            var principal = new ClaimsPrincipal(identity);
+
+            mockHttpContext.SetupGet(h => h.User).Returns(principal);
+            mockHttpContextAccessor.Setup(a => a.HttpContext).Returns(mockHttpContext.Object);
             _dbContext = new ApplicationDbContext(options);
             var porukaManager = new PorukaManager(_dbContext, mockHttpContextAccessor.Object);
             rezervacijaManager=  new RezervacijaManager(_dbContext, porukaManager);
