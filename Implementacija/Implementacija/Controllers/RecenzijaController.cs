@@ -52,6 +52,12 @@ namespace Implementacija.Controllers
             if (id == null) return NotFound();
             var artist = await _context.Izvodjaci.FirstOrDefaultAsync(m => m.Id == id);
             if (artist == null) return NotFound();
+            var listaRecenzija = await _context.Recenzije.Where(r => r.izvodjacId == id).ToListAsync();
+            int brojac = 0;
+            for(int i = 0; i < listaRecenzija.Count; i++)
+            {
+                if (listaRecenzija[i].izvodjacId == id) brojac++;
+            }
             var recenzija = new Recenzija();
             recenzija.izvodjac = artist;
             recenzija.izvodjacId = artist.Id;
