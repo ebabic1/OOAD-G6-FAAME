@@ -92,24 +92,14 @@ namespace Implementacija.Controllers
         {
             if (id != izvodjac.Id)
             {
-                return NotFound();
+                return NotFound(); //provjeri da li postoji taj id, da se osiguramo da baza ne baca izuzetak
             }
 
 
             if (ModelState.IsValid)
-            {
-                try
-                {
+            {    
                     _context.Update(izvodjac);
                     await _context.SaveChangesAsync();
-                }
-                catch (DbUpdateConcurrencyException)
-                {
-                    if (!IzvodjacExists(izvodjac.Id))
-                    {
-                        return NotFound();
-                    }
-                }
                 return RedirectToAction(nameof(Index));
             }
             return View(izvodjac);

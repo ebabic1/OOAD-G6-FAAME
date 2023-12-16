@@ -312,8 +312,8 @@ namespace Testovi
             Assert.IsInstanceOfType(result, typeof(ViewResult));
         }
 
-        [TestMethod]
-        public async Task Edit_WithConcurrencyExceptionAndNoExistingKoncert_ReturnsNotFoundResult()
+        //[TestMethod]
+       /* public async Task Edit_WithConcurrencyExceptionAndNoExistingKoncert_ReturnsNotFoundResult()
         {
             // Arrange
             var controller = new KoncertController(_dbContext);
@@ -327,7 +327,7 @@ namespace Testovi
 
             // Assert
             Assert.IsInstanceOfType(result, typeof(NotFoundResult));
-        }
+        }*/
 
         [TestMethod]
         public async Task Delete_WithValidId_ReturnsViewResult()

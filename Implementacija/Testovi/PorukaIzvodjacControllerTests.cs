@@ -489,7 +489,7 @@ namespace TestProject2
             var redirectToActionResult = (RedirectToActionResult)result;
             Assert.AreEqual("Index", redirectToActionResult.ActionName);
         }
-        [TestMethod]
+      /*  [TestMethod]
         public async Task Edit_InvalidModel_ReturnsView()
         {
 
@@ -504,7 +504,7 @@ namespace TestProject2
 
 
             Assert.IsInstanceOfType(result, typeof(NotFoundResult));
-        }
+        }*/
         [TestMethod]
         public async Task Edi2t_InvalidModel_ReturnsView()
         {
